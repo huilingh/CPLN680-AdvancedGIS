@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- CSS Imports -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.4.0/leaflet.css" integrity="sha256-YR4HrDE479EpYZgeTkQfgVJq08+277UXxMLbi/YP69o=" crossorigin="anonymous" />
+  </head>
+
+
+  <body>
+    <div id="map" style="position: absolute; right: 0; left: 0; top: 0; bottom: 0;"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.4.0/leaflet.js" integrity="sha256-6BZRSENq3kxI4YYBDqJ23xg0r1GwTHEpvp3okdaIqBw=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.1/underscore.js" integrity="sha256-O4179En8zabOlPYBNvGp8cF0uh0vnSZpW4Q6Ul1h+8c=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+    <script src="coord_transform.js"></script>
+
+    <script>
+        var map = L.map('map', {
+          center: [39.918025, 116.397324],
+          zoom: 9
+        });
+        var Stamen_TonerLite = L.tileLayer('http://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.{ext}', {
+          attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+          subdomains: 'abcd',
+          minZoom: 0,
+          maxZoom: 20,
+          ext: 'png'
+        }).addTo(map);
+
+    </script>
+
+
+    <script>
+        var url = "https://restapi.amap.com/v3/config/district?keywords=北京&subdistrict=0&extensions=all&key=6d36b554c5f27c3118007b83b5a68b44"
+        $.ajax(url).done(function(data){
+          console.log(data);
+          var splitted = data.districts[0].polyline.split(";");
+          var coord = [];
+          _.each(splitted, function(item){
+            var x = item.split(",");
+            return coord.push([Number(x[1]), Number(x[0])]);
+          })
+          console.log(coord);
+
+          // transform data from GCJ02 to WGS84
+          var coordTransed = [];
+          _.each(coord, function(item){
+            var transed = coordtransform.gcj02towgs84(item[1], item[0]);
+            coordTransed.push([transed[1], transed[0]]);
+          })
+          console.log(coordTransed);
+
+          L.polygon(coordTransed, {color: 'red'}).addTo(map)
+          L.polygon(coord, {color: 'blue'}).addTo(map)
+          //map.fitBounds(boundary.getBounds());
+        })
+
+
+    </script>
+
+  </body>
+</html>
