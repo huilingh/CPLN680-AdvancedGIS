@@ -9,12 +9,11 @@
         left: 0;
         width: 500px;
         top: 0;
-        bottom: 0;
         background-color: rgba(255, 255, 255, 0.7);
         z-index: 10;
       }
       #map {
-        position: absolute;
+        position: fixed;
         left: 0px;
         right: 0px;
         top: 0px;
@@ -31,19 +30,11 @@
 
   <body>
     <div id="sidebar">
-      <h5 style="text-align: center">Filter Beijing Housing Transactions by Year</h5>
-      <select id="selectYear" onchange="changeYear()" style="position: relative; left: 40%">
-        <option>Year</option>
-        <option value="2011">2011</option>
-        <option value="2012">2012</option>
-        <option value="2013">2013</option>
-        <option value="2014">2014</option>
-        <option value="2015">2015</option>
-        <option value="2016">2016</option>
-        <option value="2017">2017</option>
-      </select>
-      <h5 style="text-align: center">Average home price in Beijing</h5>
-      <div id="viz"></div>
+      <h5 style="text-align: center">Monthly Average House Price in Beijing</h5>
+      <div id="plot-ave-homeprice"></div>
+      <br>
+      <h5 style="text-align: center">Monthly Average House Price by District</h5>
+      <div id="plot-homeprice-dist"></div>
     </div>
 
     <div id="map"></div>
@@ -58,47 +49,32 @@
       // altair plots
       var spec = "https://raw.githubusercontent.com/huilingh/CPLN680-AdvancedGIS-web-application/master/average_homeprice_plot.json";
       var em_opt = {"actions": false, "width": 400, "height": 300}
-      vegaEmbed('#viz', spec, em_opt).then(function(result) {
+      vegaEmbed('#plot-ave-homeprice', spec, em_opt).then(function(result) {
         // Access the Vega view instance (https://vega.github.io/vega/docs/api/view/) as result.view
       }).catch(console.error);
+
+      var spec2 = "https://raw.githubusercontent.com/huilingh/CPLN680-AdvancedGIS-web-application/master/homeprice_by_district_plot.json"
+      var em_opt2 = {"actions": false, "width": 300, "height": 200}
+      vegaEmbed('#plot-homeprice-dist', spec2, em_opt2).then(function(result) {}).catch(console.error);
     </script>
 
     <script>
-      yearly_price = {
-        "2011": 1000,
-        "2012": 2000,
-        "2013": 3000,
-        "2014": 4000,
-        "2015": 5000,
-        "2016": 6000,
-        "2017": 7000
-      };
-
-      function changeYear() {
-        var selected = document.getElementById("selectYear").value;
-        popuptext = yearly_price[selected];
-
-        var boundary = "https://restapi.amap.com/v3/config/district?keywords=北京&subdistrict=0&extensions=all&key=6d36b554c5f27c3118007b83b5a68b44"
-        $.ajax(boundary).done(function(data){
-          var splitted = data.districts[0].polyline.split(";");
-          var coord = [];
-          _.each(splitted, function(item){
-            var x = item.split(",");
-            return coord.push([Number(x[1]), Number(x[0])]);
-          })
-
-          var coordTransed = [];
-          _.each(coord, function(item){
-            var transed = coordtransform.gcj02towgs84(item[1], item[0]);
-            coordTransed.push([transed[1], transed[0]]);
-          })
-
-          L.polygon(coordTransed, {color: 'red'}).addTo(map).bindPopup(popuptext);
+      // add Beijing boundary through github json file
+      var url = "https://raw.githubusercontent.com/huilingh/CPLN680-AdvancedGIS-web-application/master/BJ_boundary.json";
+      $.ajax(url).done(function(data){
+        parsed = JSON.parse(data);
+        console.log(parsed);
+        var coord = [];
+        _.each(parsed, function(item){
+          return coord.push([item.Lat, item.Lng]);
         })
-      }
+        L.polygon(coord, {color: 'blue', opacity: 0.5, fillOpacity: 0.1}).addTo(map).bindTooltip("Beijing City Boundary");
+      })
+
     </script>
 
-    <script>
+    <!-- <script>
+      // the following code get Beijing boundary directly from Gaode API and transform the coordinates
       // add Beijing boundary
       var boundary = "https://restapi.amap.com/v3/config/district?keywords=北京&subdistrict=0&extensions=all&key=6d36b554c5f27c3118007b83b5a68b44"
       $.ajax(boundary).done(function(data){
@@ -119,11 +95,11 @@
         })
         // console.log(coordTransed);
 
-        L.polygon(coordTransed, {color: 'red', opacity: 0.5}).addTo(map).bindTooltip(popuptext).openTooltip();
+        L.polygon(coordTransed, {color: 'red', opacity: 0.5}).addTo(map)
         //L.polygon(coord, {color: 'blue'}).addTo(map)
         //map.fitBounds(boundary.getBounds());
       })
-    </script>
+    </script> -->
 
     <!-- <script>
       add houseprice datasets
@@ -159,7 +135,7 @@
     <script>
       // basic map settings
       var map = L.map('map', {
-        center: [39.918025, 116.397324],
+        center: [40, 116],
         zoom: 9
       });
       var Stamen_TonerLite = L.tileLayer('http://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.{ext}', {
