@@ -8,13 +8,18 @@
         position: absolute;
         left: 0;
         width: 500px;
+        top: 0;
+        bottom: 0;
+        background-color: rgba(255, 255, 255, 0.5);
+        z-index: 10;
       }
       #map {
         position: absolute;
-        left: 500px;
+        left: 0px;
         right: 0px;
         top: 0px;
         bottom: 0px;
+        z-index: 0;
       }
 
     </style>
@@ -26,6 +31,16 @@
 
   <body>
     <div id="sidebar">
+      <h5 style="text-align: center">Filter Beijing Housing Transactions by Year</h5>
+      <select id="dropdown" style="position: relative; left: 40%">
+        <option value="2011">2011</option>
+        <option value="2012">2012</option>
+        <option value="2013">2013</option>
+        <option value="2014">2014</option>
+        <option value="2015">2015</option>
+        <option value="2016">2016</option>
+        <option value="2017">2017</option>
+      </select>
       <h5 style="text-align: center">Average home price in Beijing</h5>
       <div id="viz"></div>
     </div>
@@ -40,66 +55,72 @@
 
 
     <script type="text/javascript">
-      var spec = "https://raw.githubusercontent.com/huilingh/CPLN680-AdvancedGIS-web/master/average_homeprice.json";
+      // altair plots
+      var spec = "https://github.com/huilingh/CPLN680-AdvancedGIS-web-application/blob/master/average_homeprice.json";
       var em_opt = {"actions": false, "width": 400, "height": 300}
       vegaEmbed('#viz', spec, em_opt).then(function(result) {
         // Access the Vega view instance (https://vega.github.io/vega/docs/api/view/) as result.view
       }).catch(console.error);
     </script>
 
+    <script>
+      // basic map settings
+      var map = L.map('map', {
+        center: [39.918025, 116.397324],
+        zoom: 9
+      });
+      var Stamen_TonerLite = L.tileLayer('http://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.{ext}', {
+        attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        subdomains: 'abcd',
+        minZoom: 0,
+        maxZoom: 20,
+        ext: 'png'
+      }).addTo(map);
+    </script>
 
     <script>
-        var map = L.map('map', {
-          center: [39.918025, 116.397324],
-          zoom: 9
-        });
-        var Stamen_TonerLite = L.tileLayer('http://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.{ext}', {
-          attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-          subdomains: 'abcd',
-          minZoom: 0,
-          maxZoom: 20,
-          ext: 'png'
-        }).addTo(map);
+      // add houseprice datasets
 
     </script>
 
 
     <script>
-        // add Beijing boundary
-        var boundary = "https://restapi.amap.com/v3/config/district?keywords=北京&subdistrict=0&extensions=all&key=6d36b554c5f27c3118007b83b5a68b44"
-        $.ajax(boundary).done(function(data){
-          console.log(data);
-          var splitted = data.districts[0].polyline.split(";");
-          var coord = [];
-          _.each(splitted, function(item){
-            var x = item.split(",");
-            return coord.push([Number(x[1]), Number(x[0])]);
-          })
-          console.log(coord);
-
-          // transform data from GCJ02 to WGS84
-          var coordTransed = [];
-          _.each(coord, function(item){
-            var transed = coordtransform.gcj02towgs84(item[1], item[0]);
-            coordTransed.push([transed[1], transed[0]]);
-          })
-          console.log(coordTransed);
-
-          L.polygon(coordTransed, {color: 'red'}).addTo(map)
-          //L.polygon(coord, {color: 'blue'}).addTo(map)
-          //map.fitBounds(boundary.getBounds());
+      // add Beijing boundary
+      var boundary = "https://restapi.amap.com/v3/config/district?keywords=北京&subdistrict=0&extensions=all&key=6d36b554c5f27c3118007b83b5a68b44"
+      $.ajax(boundary).done(function(data){
+        console.log(data);
+        var splitted = data.districts[0].polyline.split(";");
+        var coord = [];
+        _.each(splitted, function(item){
+          var x = item.split(",");
+          return coord.push([Number(x[1]), Number(x[0])]);
         })
+        console.log(coord);
 
-        // add subway stations
-        var subway = "https://raw.githubusercontent.com/huilingh/CPLN680-AdvancedGIS-web/master/sub_station.json"
-        $.ajax(subway).done(function(data){
-          parsed = JSON.parse(data);
-          _.each(parsed.pois, function(station){
-            return L.marker([station.lat, station.lng]).addTo(map).bindPopup(station.name)
-          })
+        // transform data from GCJ02 to WGS84
+        var coordTransed = [];
+        _.each(coord, function(item){
+          var transed = coordtransform.gcj02towgs84(item[1], item[0]);
+          coordTransed.push([transed[1], transed[0]]);
         })
+        console.log(coordTransed);
 
+        L.polygon(coordTransed, {color: 'red'}).addTo(map)
+        //L.polygon(coord, {color: 'blue'}).addTo(map)
+        //map.fitBounds(boundary.getBounds());
+      })
     </script>
+
+    <!-- <script>
+    // add subway stations
+    var subway = "https://raw.githubusercontent.com/huilingh/CPLN680-AdvancedGIS-web/master/sub_station.json"
+    $.ajax(subway).done(function(data){
+      parsed = JSON.parse(data);
+      _.each(parsed.pois, function(station){
+        return L.marker([station.lat, station.lng]).addTo(map).bindPopup(station.name)
+      })
+    })
+    </script> -->
 
   </body>
 </html>
