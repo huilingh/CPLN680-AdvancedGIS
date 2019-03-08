@@ -10,7 +10,7 @@
         width: 500px;
         top: 0;
         bottom: 0;
-        background-color: rgba(255, 255, 255, 0.5);
+        background-color: rgba(255, 255, 255, 0.7);
         z-index: 10;
       }
       #map {
@@ -32,7 +32,8 @@
   <body>
     <div id="sidebar">
       <h5 style="text-align: center">Filter Beijing Housing Transactions by Year</h5>
-      <select id="dropdown" style="position: relative; left: 40%">
+      <select id="selectYear" onchange="changeYear()" style="position: relative; left: 40%">
+        <option>Year</option>
         <option value="2011">2011</option>
         <option value="2012">2012</option>
         <option value="2013">2013</option>
@@ -51,17 +52,109 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.1/underscore.js" integrity="sha256-O4179En8zabOlPYBNvGp8cF0uh0vnSZpW4Q6Ul1h+8c=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
     <script src="coord_transform.js"></script>
-    <script src="average_homeprice.json"></script>
 
 
     <script type="text/javascript">
       // altair plots
-      var spec = "https://github.com/huilingh/CPLN680-AdvancedGIS-web-application/blob/master/average_homeprice.json";
+      var spec = "https://raw.githubusercontent.com/huilingh/CPLN680-AdvancedGIS-web-application/master/average_homeprice_plot.json";
       var em_opt = {"actions": false, "width": 400, "height": 300}
       vegaEmbed('#viz', spec, em_opt).then(function(result) {
         // Access the Vega view instance (https://vega.github.io/vega/docs/api/view/) as result.view
       }).catch(console.error);
     </script>
+
+    <script>
+      yearly_price = {
+        "2011": 1000,
+        "2012": 2000,
+        "2013": 3000,
+        "2014": 4000,
+        "2015": 5000,
+        "2016": 6000,
+        "2017": 7000
+      };
+
+      function changeYear() {
+        var selected = document.getElementById("selectYear").value;
+        popuptext = yearly_price[selected];
+
+        var boundary = "https://restapi.amap.com/v3/config/district?keywords=北京&subdistrict=0&extensions=all&key=6d36b554c5f27c3118007b83b5a68b44"
+        $.ajax(boundary).done(function(data){
+          var splitted = data.districts[0].polyline.split(";");
+          var coord = [];
+          _.each(splitted, function(item){
+            var x = item.split(",");
+            return coord.push([Number(x[1]), Number(x[0])]);
+          })
+
+          var coordTransed = [];
+          _.each(coord, function(item){
+            var transed = coordtransform.gcj02towgs84(item[1], item[0]);
+            coordTransed.push([transed[1], transed[0]]);
+          })
+
+          L.polygon(coordTransed, {color: 'red'}).addTo(map).bindPopup(popuptext);
+        })
+      }
+    </script>
+
+    <script>
+      // add Beijing boundary
+      var boundary = "https://restapi.amap.com/v3/config/district?keywords=北京&subdistrict=0&extensions=all&key=6d36b554c5f27c3118007b83b5a68b44"
+      $.ajax(boundary).done(function(data){
+        // console.log(data);
+        var splitted = data.districts[0].polyline.split(";");
+        var coord = [];
+        _.each(splitted, function(item){
+          var x = item.split(",");
+          return coord.push([Number(x[1]), Number(x[0])]);
+        })
+        // console.log(coord);
+
+        // transform data from GCJ02 to WGS84
+        var coordTransed = [];
+        _.each(coord, function(item){
+          var transed = coordtransform.gcj02towgs84(item[1], item[0]);
+          coordTransed.push([transed[1], transed[0]]);
+        })
+        // console.log(coordTransed);
+
+        L.polygon(coordTransed, {color: 'red', opacity: 0.5}).addTo(map).bindTooltip(popuptext).openTooltip();
+        //L.polygon(coord, {color: 'blue'}).addTo(map)
+        //map.fitBounds(boundary.getBounds());
+      })
+    </script>
+
+    <!-- <script>
+      add houseprice datasets
+      so many data points - probably not a good idea to add all markers on the map......
+      function changeYear() {
+        var selected = document.getElementById("selectYear").value;
+        var url = "https://raw.githubusercontent.com/huilingh/CPLN680-AdvancedGIS-web-application/master/BJ_houseprice_year_json/BJ_houseprice_" + selected.substring(2) + ".json"
+        console.log(url);
+        $.ajax(url).done(function(data){
+          parsed = JSON.parse(data);
+          for (var index in parsed) {
+            lat = parsed[index].Lat_transed;
+            lng = parsed[index].Lng_transed;
+            console.log(lat, lng);
+            L.circleMarker([lat, lng], {color: "red", radius: 10}).addTo(map);
+          }
+        })
+      }
+    </script> -->
+
+
+    <!-- <script>
+    // add subway stations
+    var subway = "https://raw.githubusercontent.com/huilingh/CPLN680-AdvancedGIS-web/master/sub_station.json"
+    $.ajax(subway).done(function(data){
+      parsed = JSON.parse(data);
+      _.each(parsed.pois, function(station){
+        return L.marker([station.lat, station.lng]).addTo(map).bindTooltip("my tooltip text");
+      })
+    })
+    </script> -->
 
     <script>
       // basic map settings
@@ -78,49 +171,6 @@
       }).addTo(map);
     </script>
 
-    <script>
-      // add houseprice datasets
-
-    </script>
-
-
-    <script>
-      // add Beijing boundary
-      var boundary = "https://restapi.amap.com/v3/config/district?keywords=北京&subdistrict=0&extensions=all&key=6d36b554c5f27c3118007b83b5a68b44"
-      $.ajax(boundary).done(function(data){
-        console.log(data);
-        var splitted = data.districts[0].polyline.split(";");
-        var coord = [];
-        _.each(splitted, function(item){
-          var x = item.split(",");
-          return coord.push([Number(x[1]), Number(x[0])]);
-        })
-        console.log(coord);
-
-        // transform data from GCJ02 to WGS84
-        var coordTransed = [];
-        _.each(coord, function(item){
-          var transed = coordtransform.gcj02towgs84(item[1], item[0]);
-          coordTransed.push([transed[1], transed[0]]);
-        })
-        console.log(coordTransed);
-
-        L.polygon(coordTransed, {color: 'red'}).addTo(map)
-        //L.polygon(coord, {color: 'blue'}).addTo(map)
-        //map.fitBounds(boundary.getBounds());
-      })
-    </script>
-
-    <!-- <script>
-    // add subway stations
-    var subway = "https://raw.githubusercontent.com/huilingh/CPLN680-AdvancedGIS-web/master/sub_station.json"
-    $.ajax(subway).done(function(data){
-      parsed = JSON.parse(data);
-      _.each(parsed.pois, function(station){
-        return L.marker([station.lat, station.lng]).addTo(map).bindPopup(station.name)
-      })
-    })
-    </script> -->
 
   </body>
 </html>
