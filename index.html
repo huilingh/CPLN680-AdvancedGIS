@@ -3,16 +3,50 @@
   <head>
     <!-- CSS Imports -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.4.0/leaflet.css" integrity="sha256-YR4HrDE479EpYZgeTkQfgVJq08+277UXxMLbi/YP69o=" crossorigin="anonymous" />
+    <style>
+      #sidebar {
+        position: absolute;
+        left: 0;
+        width: 500px;
+      }
+      #map {
+        position: absolute;
+        left: 500px;
+        right: 0px;
+        top: 0px;
+        bottom: 0px;
+      }
+
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm//vega@3.3.1"></script>
+    <script src="https://cdn.jsdelivr.net/npm//vega-lite@2.4.3"></script>
+    <script src="https://cdn.jsdelivr.net/npm//vega-embed@3.11"></script>
   </head>
 
 
   <body>
-    <div id="map" style="position: absolute; right: 0; left: 0; top: 0; bottom: 0;"></div>
+    <div id="sidebar">
+      <h5 style="text-align: center">Average home price in Beijing</h5>
+      <div id="viz"></div>
+    </div>
+
+    <div id="map"></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.4.0/leaflet.js" integrity="sha256-6BZRSENq3kxI4YYBDqJ23xg0r1GwTHEpvp3okdaIqBw=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.1/underscore.js" integrity="sha256-O4179En8zabOlPYBNvGp8cF0uh0vnSZpW4Q6Ul1h+8c=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
     <script src="coord_transform.js"></script>
+    <script src="average_homeprice.json"></script>
+
+
+    <script type="text/javascript">
+      var spec = "https://raw.githubusercontent.com/huilingh/CPLN680-AdvancedGIS-web/master/average_homeprice.json";
+      var em_opt = {"actions": false, "width": 400, "height": 300}
+      vegaEmbed('#viz', spec, em_opt).then(function(result) {
+        // Access the Vega view instance (https://vega.github.io/vega/docs/api/view/) as result.view
+      }).catch(console.error);
+    </script>
+
 
     <script>
         var map = L.map('map', {
@@ -31,8 +65,9 @@
 
 
     <script>
-        var url = "https://restapi.amap.com/v3/config/district?keywords=北京&subdistrict=0&extensions=all&key=6d36b554c5f27c3118007b83b5a68b44"
-        $.ajax(url).done(function(data){
+        // add Beijing boundary
+        var boundary = "https://restapi.amap.com/v3/config/district?keywords=北京&subdistrict=0&extensions=all&key=6d36b554c5f27c3118007b83b5a68b44"
+        $.ajax(boundary).done(function(data){
           console.log(data);
           var splitted = data.districts[0].polyline.split(";");
           var coord = [];
@@ -51,10 +86,18 @@
           console.log(coordTransed);
 
           L.polygon(coordTransed, {color: 'red'}).addTo(map)
-          L.polygon(coord, {color: 'blue'}).addTo(map)
+          //L.polygon(coord, {color: 'blue'}).addTo(map)
           //map.fitBounds(boundary.getBounds());
         })
 
+        // add subway stations
+        var subway = "https://raw.githubusercontent.com/huilingh/CPLN680-AdvancedGIS-web/master/sub_station.json"
+        $.ajax(subway).done(function(data){
+          parsed = JSON.parse(data);
+          _.each(parsed.pois, function(station){
+            return L.marker([station.lat, station.lng]).addTo(map).bindPopup(station.name)
+          })
+        })
 
     </script>
 
