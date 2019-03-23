@@ -4,20 +4,20 @@
     <!-- CSS Imports -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.4.0/leaflet.css" integrity="sha256-YR4HrDE479EpYZgeTkQfgVJq08+277UXxMLbi/YP69o=" crossorigin="anonymous" />
     <style>
-      #sidebar {
+      #graphics {
         position: absolute;
         left: 0;
-        width: 500px;
-        top: 0;
+        right: 0;
+        top:800px;
         background-color: rgba(255, 255, 255, 0.7);
-        z-index: 10;
+        z-index: 20;
       }
       #map {
         position: fixed;
         left: 0px;
         right: 0px;
         top: 0px;
-        bottom: 0px;
+        height:100%;
         z-index: 0;
       }
       #datasource {
@@ -25,7 +25,24 @@
         font-style: italic;
         font-size: 12px;
       }
-
+      .plot {
+        position: relative;
+        margin: auto;
+        width:70%;
+      }
+      #title {
+        position: fixed;
+        margin: 0;
+        top:0;
+        width: 100%;
+        text-align: center;
+        background-color: #000;
+        color: #fff;
+        font-weight: bold;
+        font-size: 20px;
+        padding: 10px;
+        z-index: 10;
+      }
     </style>
     <script src="https://cdn.jsdelivr.net/npm//vega@3.3.1"></script>
     <script src="https://cdn.jsdelivr.net/npm//vega-lite@2.4.3"></script>
@@ -34,16 +51,23 @@
 
 
   <body>
-    <div id="sidebar">
+    <p id="title">Beijing House Price</p>
+    <div id="map"></div>
+
+    <div id="graphics">
       <h5 style="text-align: center">Monthly Average House Price in Beijing</h5>
-      <div id="plot-ave-homeprice"></div>
+      <div class="plot">
+        <div id="plot-ave-homeprice"></div>
+      </div>
       <br>
       <h5 style="text-align: center">Monthly Average House Price by District</h5>
-      <div id="plot-homeprice-dist"></div>
+      <div class="plot">
+        <div id="plot-homeprice-dist"></div>
+      </div>
+
       <p id="datasource">Data Source: <a href="https://www.kaggle.com/ruiqurm/lianjia">Kaggle Dataset - Housing Price in Beijing</a></p>
     </div>
 
-    <div id="map"></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.4.0/leaflet.js" integrity="sha256-6BZRSENq3kxI4YYBDqJ23xg0r1GwTHEpvp3okdaIqBw=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.1/underscore.js" integrity="sha256-O4179En8zabOlPYBNvGp8cF0uh0vnSZpW4Q6Ul1h+8c=" crossorigin="anonymous"></script>
@@ -54,13 +78,13 @@
     <script type="text/javascript">
       // altair plots
       var spec = "https://raw.githubusercontent.com/huilingh/CPLN680-AdvancedGIS-web-application/master/average_homeprice_plot.json";
-      var em_opt = {"actions": false, "width": 400, "height": 300}
+      var em_opt = {"actions": false, "width": 800, "height": 600}
       vegaEmbed('#plot-ave-homeprice', spec, em_opt).then(function(result) {
         // Access the Vega view instance (https://vega.github.io/vega/docs/api/view/) as result.view
       }).catch(console.error);
 
       var spec2 = "https://raw.githubusercontent.com/huilingh/CPLN680-AdvancedGIS-web-application/master/homeprice_by_district_plot.json"
-      var em_opt2 = {"actions": false, "width": 300, "height": 200}
+      var em_opt2 = {"actions": false, "width": 600, "height": 400}
       vegaEmbed('#plot-homeprice-dist', spec2, em_opt2).then(function(result) {}).catch(console.error);
     </script>
 
@@ -74,8 +98,39 @@
         _.each(parsed, function(item){
           return coord.push([item.Lat, item.Lng]);
         })
-        L.polygon(coord, {color: 'blue', opacity: 0.5, fillOpacity: 0.1}).addTo(map).bindTooltip("Beijing City Boundary");
+        L.polygon(coord, {color: 'grey', opacity: 0.5, fillOpacity: 0.1}).addTo(map).bindPopup("Beijing City Boundary");
       })
+
+    </script>
+
+    <script>
+      price17 = [];
+      var style = function(price) {
+        if (price < 40000) {return {color: '#38f5e8', radius: 3}}
+        else if (price >=40000 && price < 60000) {return {color: '#5fd4da', radius: 3}}
+        else if (price >= 60000 && price <80000) {return {color: '#87b4cb', radius: 3}}
+        else if (price >= 80000 && price <100000) {return {color: '#ae93bd', radius: 3}}
+        else {return {color: '#d572af', radius: 3}}
+      }
+      // BJ houseprice in 2017
+      var url = "https://raw.githubusercontent.com/huilingh/CPLN680-AdvancedGIS-web-application/master/BJ_houseprice_year_json/BJ_houseprice_17.json";
+      $.ajax(url).done(function(data){
+        parsed = JSON.parse(data);
+        coord = [];
+        for (key in parsed) {
+          // coord.push([parsed.key.Lat_transed, parsed.key.Lng_transed])
+          price17.push(parsed[key])
+        }
+        console.log(price17);
+
+        _.each(price17, function(point){
+          popup = "Price (/sqm): "+point.price+"<br>Trade Time: "+point.tradeTime
+          if (point.year == 2018) {
+            return L.circleMarker([point.Lat_transed, point.Lng_transed], style(point.price)).addTo(map).bindPopup(popup);
+          }
+        })
+      })
+
 
     </script>
 
@@ -141,8 +196,9 @@
     <script>
       // basic map settings
       var map = L.map('map', {
-        center: [40, 116],
-        zoom: 9
+        center: [40, 116.3],
+        zoom: 9,
+        scrollWheelZoom: false // map not zoomable
       });
       var Stamen_TonerLite = L.tileLayer('http://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.{ext}', {
         attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
