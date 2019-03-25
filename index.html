@@ -16,7 +16,7 @@
         position: fixed;
         left: 0px;
         right: 0px;
-        top: 0px;
+        top: 45px;
         height:100%;
         z-index: 0;
       }
@@ -112,7 +112,7 @@
         else if (price >= 80000 && price <100000) {return {color: '#ae93bd', radius: 3}}
         else {return {color: '#d572af', radius: 3}}
       }
-      // BJ houseprice in 2017
+      // BJ houseprice in 2018
       var url = "https://raw.githubusercontent.com/huilingh/CPLN680-AdvancedGIS-web-application/master/BJ_houseprice_year_json/BJ_houseprice_17.json";
       $.ajax(url).done(function(data){
         parsed = JSON.parse(data);
