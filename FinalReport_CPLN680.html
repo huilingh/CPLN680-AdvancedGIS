@@ -1,0 +1,323 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Final Report - CPLN680</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+
+  <!--load vega -->
+  <script src="https://cdn.jsdelivr.net/npm//vega@3.3.1"></script>
+  <script src="https://cdn.jsdelivr.net/npm//vega-lite@2.4.3"></script>
+  <script src="https://cdn.jsdelivr.net/npm//vega-embed@3.11"></script>
+
+  <style>
+    .plot { position:relative; width:100% }
+    #img-container { position:relative; width:100% }
+  </style>
+
+</head>
+
+<body class="stackedit">
+<div class="stackedit__html"><p><em>Capstone project for class CPLN 680 – Advanced Topic in GIS</em><br>
+<em>Huiling He<br>
+Instructor: Prof. Dana Tomlin</em></p>
+<h2 id="housing-price-prediction-in-beijing-multi-dimensional-vs.-two-dimensional-perspectives"><strong>Housing Price Prediction in Beijing: multi-dimensional vs. two-dimensional perspectives</strong></h2>
+<h3 id="introduction">Introduction</h3>
+<p>Housing price is an issue that relates to everyone – whether you are a home buyer, seller, investor, appraiser, etc. And over the past few decades, Chinese housing market has been experiencing very dramatic changes, which makes it even more interesting to look at the house price in China. Predicting house price in Beijing, a strong indicator of the total housing market in China, would be the starting point.</p>
+<p>There are many housing price analysis and predictions out there nowadays, especially in the past few years when more advanced machine learning algorithms start to emerge. However, predicting house price is tricky. The first question you may ask, which seems to be very simple or even unnecessary, is: what are you predicting?</p>
+<p>Of course, I am predicting house price. But are you predicting house price in next month, or next year, or at a specific location? Followed by the question of “what” – that is, what to predict, another question would be: How? That is, the methods of making predictions in order to answer the first question. Different answers to those questions may lead to totally different prediction processes. This is due to the inherent spatial and temporal characteristics of the real estate market, and the market is sensitive to many factors, such as housing characteristics, spatial locations, financial markets, timing, policy. In the case of house price prediction, making prediction could be even more difficult since many things that are out of the scope of common sense or the domain knowledge would happen, which is the so-called “black swan” events: an event or occurrence that deviates beyond what is normally expected of a situation and is extremely difficult to predict[1]. (It would be very impressive if someone correctly predicted the 2008 crisis - a genius, or a really lucky guy.)</p>
+<p>Considering the fact that housing price is sensitive to both space and time, and also that housing market in China is not a free market and highly influenced by policies and regulations, the purpose of this project is not necessarily trying to optimize the accuracy of the prediction models and generate the best outcomes. But rather, I am going to explore and compare two different perspectives when doing predictive analytics and modeling. I have named them as the “multi-dimensional” vs “the two-dimensional” perspectives, which will be discussed in later sections. In reality, the two perspectives are sometimes combined together in predictive models to improve the predictions.</p>
+<h3 id="multi-dimensional-and-two-dimensional-predictive-analytics">Multi-dimensional and Two-dimensional Predictive Analytics</h3>
+<p>I have intentionally drawn a distinction between the two perspectives in predictive analytics and called them as multi-dimensional and two-dimensional. These terms are named to be self-explanatory: the multi-dimensional perspective, is also known as the Multivariate Analysis, which is a set of techniques used for analyzing datasets with more than one variable, and especially useful when dealing with correlated variables[2]. The two-dimensional perspective, just as what its name indicates, analyze datasets with only one variable. However, the one variable that is considered in the two-dimensional analysis, is not a variable that is correlated with the dependent variable, but the variable that is coming from the dependent variable itself.</p>
+<p>In our case, for example, one may agree that housing price is a function of several factors. Proximity to public transits and amenities are value-added. House price in a wealthier neighborhood is higher than a lower-income one. Housing characteristics, such as its building conditions, construction time, design and materials, are also affecting its market price. By analyzing the features correlated with higher or lower house price and using these features to predict housing price, we are analyzing and predicting housing prices from a multi-dimensional perspective – using these different features to analyze and predict the housing prices. And by studying the patterns between those features and house price values using statistical or machine learning models, the computer should be able to predict a new house price given the values of all those features (predictors).</p>
+<p>The two-dimensional perspective, on the other hand, analyzes data and makes predictions in a different way. Rather than using the domain knowledge and looking at related features such as population, income, or subway density, predictions would be made by simply looking at other house price values, either in a neighboring region or at previous timestamps. For example, the spatial distribution of house prices generally follows <em>the First Law of Geography</em>:</p>
+<blockquote>
+<p>“Everything is related to everything else, but near things are more related than distant things.”[3]</p>
+</blockquote>
+<p>Houses with similar values tend to cluster, so the prediction of a new house price at a specific location would be just looking at its surrounding house values. Similarly, housing price is temporal and largely related to historical values. Predicting house prices in the future would be just looking at the historical data, extracting information from the past and making predictions based on former patterns. So, instead of looking at the relationships between the house prices and the external correlated features, the two-dimensional perspective looks at the internal patterns, either spatial or temporal, of the housing price itself.</p>
+<p>Now let’s go back to our first question: what are you predicting? I am trying to answer this question by applying both the multi-dimensional and two-dimensional perspectives to make predictions and compare their results. To be more specific, my objectives for this project would be:</p>
+<p>From the multi-dimensional perspective, collecting and analyzing features that are correlated with housing price to predict a new house price at a specific location and time given the values of all related features. I will run a random forest model to make the prediction.</p>
+<p>From the two-dimensional perspective, making predictions by looking at the spatial and temporal patterns of the housing prices without knowing any other associated features. The IDW (Inverse-distance Weighted) spatial interpolation will be used to predict a new house price at a given location, and a time-series prediction model called ARIMA will be used to predict the average monthly or annually house prices in the future.</p>
+<p>All of the steps including data collection, cleaning, visualization and making predictions are done in Python using Jupyter-notebook and several open-sources Python libraries.</p>
+<h3 id="method">Method</h3>
+<h4 id="data-sources">1. Data Sources</h4>
+<p><strong>1.1 Beijing housing price:</strong><br>
+The housing price dataset used in this project comes from a dataset on Kaggle (<a href="https://www.kaggle.com/ruiqurm/lianjia">https://www.kaggle.com/ruiqurm/lianjia</a>). It includes housing transactions mostly in 2011-2017, and was originally scraped from <a href="http://Lianjia.com">Lianjia.com</a>, an online real estate database (similar to Zillow and <a href="http://Apartment.com">Apartment.com</a>), developed by one of the largest real estate brokerage firm in China. This dataset also includes several housing characteristics such as total price, price per square meter, trade time, DOM (active days on market), area, etc.</p>
+<p>In addition, the following data are collected from different sources. These data are considered to be associated with the housing price, and therefore will be included as predictors for the prediction models.</p>
+<p><strong>1.2 Gaode (AMap) Map API (<a href="https://lbs.amap.com/">https://lbs.amap.com/</a>):</strong><br>
+Gaode Map is one of the largest web mapping company in China. Their online open-source platform allows users to acquire geospatial data using their APIs and build web applications on top of their free services. The data I collected using their APIs are the Beijing city boundary (with coordinates) and several POIs (Points of Interests), including:</p>
+<ul>
+<li>Subway stations</li>
+<li>Bus stations</li>
+<li>Elementary schools</li>
+<li>Middle schools</li>
+<li>Universities &amp; Colleges</li>
+</ul>
+<p><strong>1.3 Beijing Municipal Bureau of Statistics (<a href="http://www.bjstats.gov.cn/English/">http://www.bjstats.gov.cn/English/</a>)</strong><br>
+Social-economic data are collected from their website, including:</p>
+<ul>
+<li>Population (per district per year)</li>
+<li>Population density (per district per year)</li>
+<li>Permanent migrant population (per district per year)</li>
+</ul>
+<p>Housing assets are financial instruments, and the housing market is highly related to the financial market. Therefore, I also collect several financial indicators from the following data sources:</p>
+<p><strong>1.4 FRED Economic Data St. Louis FED (<a href="https://fred.stlouisfed.org/">https://fred.stlouisfed.org/</a>)</strong></p>
+<ul>
+<li>Consumer Price Index: All Items for China</li>
+<li>Producer Prices Index</li>
+<li>Economic Policy Uncertainty Index for China</li>
+<li>OECD based Recession Indicators for China from the Period following the Peak through the Trough</li>
+</ul>
+<p><strong>1.5 GECD Data (<a href="https://data.oecd.org/">https://data.oecd.org/</a>)</strong></p>
+<ul>
+<li>Annual GDP</li>
+<li>Business confidence index (BCI)</li>
+<li>Composite leading indicator (CLI)</li>
+<li>Consumer confidence index (CCI)</li>
+</ul>
+<h4 id="exploratory-data-analysis">2. Exploratory Data Analysis</h4>
+<p>For this project, I am going to predict the price per square meter in RMB. In this section, I will explore the housing price to see how prices change over time and space. I will also look at the correlations of the variables before including some of them in the prediction models.</p>
+<p><strong>2.1 Distribution</strong><br>
+The overall distribution of the housing prices is positively skewed centering at 50913, and the standard deviation is 24101. As the chart below shows, some data points have very low values, and the minimum housing price value is 1, which may be outliers and caused by the data collection process (the original data is scrapped from a website).</p>
+<img src="https://raw.githubusercontent.com/huilingh/CPLN680-AdvancedGIS-web-application/master/Graphs_for_FinalReport/Price_hist.png">
+<p><em>Fig 1: Distribution of price (sq m)</em></p>
+<p><strong>2.2 Trend</strong><br>
+Charts below show the averages of the monthly housing prices. Although there are some fluctuations, the overall trend of housing price in Beijing is rising from 2011 to 2017. In 2013 and 2016, Beijing has experienced a dramatic increase in housing prices, while in 2017 the prices started to go down.</p>
+<p>12 of the 16 administrative districts in Beijing have sample points recorded in the dataset. Breaking down by district, we can see that the trends in each district are almost consistent. Housing prices in early dates tends to be unstable, and it starts to become stable since around 2015. This may be caused by the data collection as well, as I have found that the number of samples collected in earlier years are fewer than recent dates.</p>
+<div class="plot">
+  <div id="plot-ave-homeprice"></div>
+  <div id="plot-homeprice-dist"></div>
+</div>
+<p><em>Fig 2: Top – overall trends of monthly average housing price; Bottom – monthly average housing price by districts</em></p>
+<p><strong>2.3 Spatial Pattern</strong><br>
+Maps below show the housing prices of all collected sample points in the dataset broken down by year (reds are the low and blues are the high values, and colors are displayed on the same scale on all maps). The sample points are clustering at center city, and the housing prices have been increasing year by year.</p>
+<img src="https://github.com/huilingh/CPLN680-AdvancedGIS-web-application/raw/master/Graphs_for_FinalReport/Map_houseprice_subplots.png">
+<p><em>Fig 3: Spatial distribution of housing price (sq m) by year</em></p>
+<p><strong>2.4 Correlation Matrix of Variables</strong><br>
+Below is the correlations of all variables in the dataset. Some variables tend to have strong correlations with others. For example, the financial indicators such as GDP, CLI, BCI and so on, are highly correlated. So as the POI densities, such as subway density, bus density, and school densities. As for the housing characteristics, housing area is positively correlated with the numbers of rooms (living rooms, bathrooms, etc.).</p>
+<p>It is also interesting to note that some of the correlated variables reflect the process of urbanization in Beijing in the past 30 years. If we take a closer look at the construction time, we would find that it is negatively correlated with several variables: price (the variable that we want to predict), average prices of the community (communityAverage), population density, and the POI densities (subway, schools). In fact, Beijing has been through a vast urban sprawl in the past few decades, and houses built in earlier dates are generally located in center city, dense areas with higher population density and closer proximity to amenities, and their housing prices are higher.</p>
+<img src="https://github.com/huilingh/CPLN680-AdvancedGIS-web-application/raw/master/Graphs_for_FinalReport/Correlation_matrix.png">
+<p><em>Fig 4: Correlation matrix of all variables</em></p>
+<p>Many variables are correlated in our dataset. Machine learning models often have hundreds or even thousands of predictors, and the assumption of no multicollinearity between predictors when running traditional statistic models such as linear regression, is not applicable any more, as multicollinearity will always exit. Excluding some highly correlated variables may improve the prediction, but Random Forest model is able to handle such a large amount of predictors.</p>
+<h4 id="multi-dimensional-prediction">3. Multi-dimensional Prediction</h4>
+<p>Conducting multi-dimensional prediction, or using a more well-known term, multivariate prediction, is to look at the features that are correlated with housing prices, and select those strong ones as predictors in the Random Forest prediction model, which is a relatively modern and popular machine learning model nowadays.</p>
+<p><strong>Random Forest Algorithm</strong><br>
+Random Forest is one of the machine learning algorithms proven to be able to generate stable prediction outcomes while handling huge dataset with both continuous and categorical features, which is hard to deal with in traditional statistic models like the linear regression. Random Forest is a tree-based machine learning algorithm, which is the bagging of many decision trees. In random forest, one decision tree is a weak learner and has one single prediction outcome. Although the predictive power of one single decision tree is generally very low, Random Forest is able to improve and optimize the prediction accuracy by combining multiple decision trees which are trained independently, and the final prediction result is generated by calculating the mean of the outcomes from all decision trees in regression, or taking the class with maximum votes in classification[4].</p>
+<img src="https://github.com/huilingh/CPLN680-AdvancedGIS-web-application/raw/master/Graphs_for_FinalReport/DecisionTree.png" width="400">
+<img src="https://github.com/huilingh/CPLN680-AdvancedGIS-web-application/raw/master/Graphs_for_FinalReport/RandomForest_simplify.png" width="400">
+<p><em>Fig 5: Top - decision tree; Bottom - random forest</em></p>
+<p>Random Forest prediction is favored today for its advantages that many other predictions do not have, including its capability to deal with:</p>
+<ul>
+<li>huge data set</li>
+<li>thousands of predictors</li>
+<li>both continuous and categorical predictors</li>
+<li>highly non-linear correlations</li>
+<li>missed values and outliers</li>
+<li>issues of overfitting, when more trees are added to the forest[5]</li>
+</ul>
+<p>For this project, I will use the Random Forest algorithm in Python from the scikit-learn[6] library to make the prediction. This library is also able to deal with some pre-processes before running the model, including splitting the dataset randomly into training and testing dataset, cross-validations and model evaluations.</p>
+<h4 id="two-dimensional-prediction">4. Two-dimensional Prediction</h4>
+<p>Two-dimensional prediction is to make predictions by only analyzing the spatial and temporal patterns of the housing prices and not looking at any related features listed above. In some cases, the multi-dimensional prediction (multi-variate prediction) may be problematic and not a good approach for prediction. The main reasons are:</p>
+<p>In the case of housing price prediction, housing price is sensitive to numerous factors, and the relationships between those factors and the housing price are often non-intuitive and therefore hard to capture. Finding and selecting strong predictors will be hard and time-consuming and requires a lot of works.</p>
+<p>It will be even more problematic when predicting values in the future, as the future <strong>real</strong> values of the predictors are often unclear. If using predicted values of the variables in machine learning models (i.e., build a model and predict the future values of each feature), it may lead to an unstable outcome and increase the error of the prediction on the target variable (housing price in this case)[7].</p>
+<p>In such cases, the two-dimensional prediction may be a better approach and it is much easier to apply without largely decreasing the prediction accuracy.</p>
+<p><strong>4.1 Spatial Interpolation (IDW)</strong></p>
+<p>Spatial interpolation is a process that is generally used in raster calculation. It predicts values at any given location from a limited number of sample data points and generate a new grid. This process can be used to predict values for any unsampled geographic point data: temperature, elevation, noise levels, and so on[8].</p>
+<p>The assumption of interpolation is based on the First Law of Geography as mentioned above: things that are closer to each other tend to have similar features and values. The spatial distribution of housing prices is also consistent with this assumption. Therefore, spatial interpolation can also be applied here to prediction housing prices at any given location by looking at the housing prices of its neighbors.</p>
+<p>There are several methods of interpolation, and the one that will be used in this project is called the Inverse-distance Weighted (IDW), which is by far one of the most widely used methods. It calculates a value at any given location by using the formula below, where NthValue is the value of the Nth sample point, and NthDistance is the distance between that sample point and that location with unknown value:</p>
+<img src="https://github.com/huilingh/CPLN680-AdvancedGIS-web-application/raw/master/Graphs_for_FinalReport/IDW_formula.png">
+<p>The exponential powers of the inversed-distance variable can be changed to different values, and higher powers generally result in smoother surfaces that are not as highly inflected close to sample points than lower values. A power of 2 is generally used in most cases, which is also used in this case[9].</p>
+<p>However, the idea and the application of the spatial interpolation in this case, is a little bit different than the general use cases, in which the interpolation is applied to predict new values at unsampled locations. Here, the IDW formula is applied to create a spatial-lagged variable, in such way that:</p>
+<p>For each sample point in the dataset, find the nearest nth sample points and their housing prices, and calculate the predicted housing prices of that sample point using the IDW formula. By applying this function to each sample point in our dataset, we are assuming that for each iteration, the housing price at that sample location is unknown and predicted (interpolated) from the Inversed-distance Weighted house prices of the nth nearest samples. The purpose of doing so is to evaluate the prediction accuracy of the spatial interpolation, by comparing the spatial-lagged values, which is the “predicted value” of housing prices and the actual values, rather than generating a smooth surface of housing prices.</p>
+<p><strong>4.2 Time-series (ARIMA)</strong><br>
+Housing price is also temporal and largely related to its historical values, so people generally look at historical trends when analyzing the market. In such cases, time-series prediction models are used when predicting future values. In time-series models, time is the only dimension that it looks for. It extracts information from the past and makes predictions in the future based on former patterns. Time-series models are also widely used in predicting financial values, data collected from sensors such as temperature, air pollution, or traffic volumes.</p>
+<p>In this project, I will use the ARIMA model, which stands for Autoregressive Integrated Moving Average and is also available in the sckit-learn library. It is a time-series prediction model that takes three time-variables as inputs: trend, seasonality, noise. To be more specific, they are:</p>
+<ul>
+<li>a pattern of growth/decline in the data is accounted for (hence the “auto-regressive” part)</li>
+<li>the rate of change of the growth/decline in the data is accounted for (hence the “integrated” part)</li>
+<li>noise between consecutive time points is accounted for (hence the “moving average” part)[10]</li>
+</ul>
+<p>For example, the housing prices can be decomposed as trend, seasonality and residuals (noises) as the following, using the ARIMA library:</p>
+<img src="https://github.com/huilingh/CPLN680-AdvancedGIS-web-application/raw/master/Graphs_for_FinalReport/Trend_seasonality_noise.png">
+<p><em>Fig 6: Trend, seasonality and residuals of Beijing housing prices</em></p>
+<p>ARIMA makes predictions based on continuous historical patterns. Here, the unit of prediction is the monthly average housing prices. I calculate the average housing prices for every month from 2011 to 2017 and split the dataset into training and test sets by year 2017. Data before 2017 would be the training to fit the model, and the model would predict the values in 2017.</p>
+<h3 id="model-applications-and-results">Model Applications and Results</h3>
+<h4 id="random-forest">1. Random Forest</h4>
+<p><strong>1.1 Dependent variable: Log-transformation of housing price</strong><br>
+As presented earlier, the distribution of the actual housing price values is positively skewed. In this case, the log transformation on the housing prices will make the variable normally distributed so as to better fit the model and increase prediction accuracy.</p>
+<div id="img-container">
+  <img src="https://github.com/huilingh/CPLN680-AdvancedGIS-web-application/raw/master/Graphs_for_FinalReport/Price_hist.png" style="float:left; width: 50%">
+  <img src="https://github.com/huilingh/CPLN680-AdvancedGIS-web-application/raw/master/Graphs_for_FinalReport/Logged_Price_hist.png" style="float:right; width: 50%">
+</div>
+<p style="clear:both"><em>Fig 7: Left - price (sq m); Right - log-transformed price</em></p>
+<p><strong>1.2 Predictors</strong><br>
+The purpose of running the multi-dimensional Random Forest model is to evaluate the predictive power using the external features correlated with the housing prices. Therefore, spatial-lagged or time-lagged housing prices are not included in the model, but are conducted separately later when doing the two-dimensional predictions.</p>
+<p>As mentioned above, Random Forest is capable of handling large datasets, thousands of predictors and both continuous and categorical predictors. After data cleaning and exploration, the following features are selected and classified as:</p>
+<p><em>Housing Characteristics:</em></p>
+<ul>
+<li>DOM (active days on market)</li>
+<li>Number of bed room</li>
+<li>Number of living room</li>
+<li>Number of kitchen</li>
+<li>Number of bathroom</li>
+<li>Height of the house (categorical, descripted as high, medium, and low)</li>
+<li>Total floors of the building that the house is located in</li>
+<li>Building type (categorical)</li>
+<li>Building construction time</li>
+<li>Renovation condition (categorical)</li>
+<li>Building structure (categorical)</li>
+<li>Ladder ratio (how many ladders per resident on average)</li>
+<li>Elevator (binary)</li>
+<li>Five-year property (if the owner have the property for less than 5 years, binary)</li>
+</ul>
+<p><em>Density of POIs:</em></p>
+<ul>
+<li>Subway stations</li>
+<li>Bus stations</li>
+<li>Elementary schools</li>
+<li>Middle schools</li>
+<li>Universities &amp; Colleges</li>
+</ul>
+<p><em>Social-economic Indicators:</em></p>
+<ul>
+<li>Population (per district per year)</li>
+<li>Population density (per district per year)</li>
+<li>Permanent migrant population (per district per year)</li>
+</ul>
+<p><em>Financial Indicators:</em></p>
+<ul>
+<li>Annual GDP</li>
+<li>Business confidence index (BCI)</li>
+<li>Composite leading indicator (CLI)</li>
+<li>Consumer confidence index (CCI)</li>
+<li>Consumer Price Index (CPI)</li>
+<li>Producer Prices Index (PPI)</li>
+<li>Economic Policy Uncertainty Index for China (EPUI)</li>
+<li>Recession Indicators for China (RI, binary)</li>
+</ul>
+<p><strong>1.3 Prediction Results</strong><br>
+I run the Random Forest model by specifying the number of decision trees to be 500 and other parameters as[11]:</p>
+<pre><code>rf = RandomForestRegressor(n_estimators=500, random_state=42, max_features=0.5, min_samples_leaf=2)
+</code></pre>
+<p>The picture below shows the residuals of the test set, which is slightly negatively skewed and centering at 0. It seems like the model tends to under-predict the housing prices than the actual values.</p>
+<img src="https://github.com/huilingh/CPLN680-AdvancedGIS-web-application/raw/master/Graphs_for_FinalReport/RF_residuals.png">
+<p><em>Fig 8: Residuals of random forest model on the test set</em></p>
+<p>We get the result of MAE (mean absolute error) at 3930 and the MAPE (mean absolute percent error) at 0.95. Higher MAPE values indicate a lower prediction accuracy, and in this case, the MAPE is high and the prediction result is not very ideal.</p>
+<p>However, if we take a closer look at the absolute percent error (APE) of each of the samples in the test set, we would find that ­­­­­the majority of the APE values is very low and centers at 0. The mean of APE, which is the MAPE, is greatly affected by a few outliers. Among the test set which contains 26508 samples, there are 148 samples with APE larger than 1, and among those 148 samples, the majority of the APE is close to 1, with a few outliers with really large APE. If we would like to figure out whether these outliers are caused by the prediction model or the quality of the data of these specific sample points, we may need to take a closer inspection. But for now, I would draw a conclusion that the model is fair enough, as most of the APE in the test set are very small despite that a few outliers exist.</p>
+<div id="img-container">
+  <img src="https://github.com/huilingh/CPLN680-AdvancedGIS-web-application/raw/master/Graphs_for_FinalReport/RF_APE_hist.png" style="float:left; width: 50%">
+  <img src="https://github.com/huilingh/CPLN680-AdvancedGIS-web-application/raw/master/Graphs_for_FinalReport/RF_newAPE_hist.png" style="float:right; width: 50%">
+</div>
+<p style="clear:both"><em>Fig 9: Left - absolute percent error (APE) of random forest model; Right – APE larger than 1</em></p>
+<img src="https://github.com/huilingh/CPLN680-AdvancedGIS-web-application/raw/master/Graphs_for_FinalReport/RF_APE_plot.png">
+<p><em>Fig 10: Points (in red) with APE larger than 1 from random forest results</em></p>
+<p>I also conduct a cross-validation with 5 folds using the cross_val_score[12] module from the sckit-learn library, which will return a score of 0-1 for each fold that evaluates the accuracy of each model. The result shows that the overall accuracy of the random forest model is actually not bad, ranging from 0.79 to 0.84.</p>
+<pre><code># cross validation
+from sklearn.model_selection import cross_val_score
+cv_score = cross_val_score(rf, train_features_noID, y=train_labels, cv=5)
+cv_score
+
+&gt; Result: array([0.82220234, 0.79569365, 0.80734798, 0.84073642, 0.82963066])
+</code></pre>
+<p>The picture below shows the relative importance of all features. Note that the importance values are always non-negative values ranging from 0 to 1, so we are not able to tell if a predictor is positively or negatively correlated with the housing prices. This is because Random Forest is a decision tree-based algorithm, and this is one of the disadvantages of Random Forest.</p>
+<img src="https://github.com/huilingh/CPLN680-AdvancedGIS-web-application/raw/master/Graphs_for_FinalReport/RF_feature_importance.png">
+<p><em>Fig 11: Feature importance of random forest model</em></p>
+<p>Population density in each district appears to be the most important feature, followed by DOM (active days on market), the density of elementary schools and the annual GDP. Features that are the least important are mostly housing characteristics such as fiveYearProperty (a binary variable related to China restricted purchase of houses policy), elevator (binary), building structures, building types, etc.</p>
+<h4 id="spatial-interpolation-idw">2. Spatial Interpolation (IDW)</h4>
+<p>When calculating the IDW for each sample point, I split the dataset into seven sub-datasets by year and iterate the IDW process for each year from 2011 to 2017. For each of the seven sub-datasets, the IDW formula is applied to each sample point within that year. The main reasons for doing so is that: 1. The entire dataset is too large, and the computer is not able to handle the IDW calculation if iterating all the sample points at one time. Running the IDW calculation for each year still takes a very long time. 2. More importantly, the housing price sample points are collected at different timestamp, so it makes little sense to calculate a predicted value at one sample point collected in 2011, for example, if one of its nth nearest sample points is collected in 2017.</p>
+<p>Here, I set the number of nearest points to 10. The residual histogram below shows that the distribution is very close to a normal distribution centering at 0.</p>
+<img src="https://github.com/huilingh/CPLN680-AdvancedGIS-web-application/raw/master/Graphs_for_FinalReport/IDW_residuals.png">
+<p><em>Fig 12: Residuals of spatial-lagged IDW calculation</em></p>
+<p>The MAE and MAPE are 6028 and 2.14, which are larger than the Random Forest model. I have also inspected the APE for each sample in the entire dataset, and found that among the entire dataset with 105971 samples, there are 756 samples with APE larger than 1, comprising 0.7% of all samples and slightly larger than the Random Forest model which is slightly less than 0.6% (148 samples with APE larger than 1 in the test sets with 26508 samples). And similar to the result of Random Forest, the APE is driven by a few outliers with very large values. Based on the results of the two predictions, a closer look at the dataset and further data wrangling are needed if we would optimize the predictions that will be generalizable.</p>
+<div id="img-container">
+  <img src="https://github.com/huilingh/CPLN680-AdvancedGIS-web-application/raw/master/Graphs_for_FinalReport/IDW_APE_hist.png" style="float:left; width: 50%">
+  <img src="https://github.com/huilingh/CPLN680-AdvancedGIS-web-application/raw/master/Graphs_for_FinalReport/IDW_newAPE_hist.png" style="float:right; width: 50%">
+</div>
+<p style="clear:both"><em>Fig 13: Left - absolute percent error (APE) of spatial IDW; Right – APE larger than 1</em></p>
+<img src="https://github.com/huilingh/CPLN680-AdvancedGIS-web-application/raw/master/Graphs_for_FinalReport/IDW_APE_plot.png">
+<p><em>Fig 14: Points (in red) with APE larger than 1 from spatial IDW</em></p>
+<h4 id="time-series-arima">3. Time-series (ARIMA)</h4>
+<p>The ARIMA prediction will be the one-step forecast using the <code>forecast()</code> function from the ARIMA model, and the prediction process will be a rolling forecast to predict the house prices in a year. One-step means that the model will predict one average house price in the next month from the historical observations, and a rolling forecast is conducted in a way that a new observation is appended to the training set and a new ARIMA model is re-created for each iteration when a new prediction is made for the next month.</p>
+<p>Setting the three input values (non-negative integers) of the ARIMA model as 10,1,0, I conduct the one-step rolling forecast by running the following codes[13]:</p>
+<pre><code># split training and test sets
+train = monthly_price.loc[(monthly_price['year'] &gt;= 2011) &amp; (monthly_price['year'] &lt;= 2016)][['date','price']].set_index('date')
+test = monthly_price.loc[monthly_price['year'] == 2017][['date','price']].set_index('date')
+
+# one-step prediction on test set
+predict = []
+train_list = [x for x in train['price']]
+test_list = [x for x in test['price']]
+
+for t in range(len(test_list)):
+    model = ARIMA(train_list, order=(10,1,0))
+	fit = model.fit(disp=0)
+	yhat = fit.forecast()[0]
+	predict.append(yhat)
+	obs = test_list[t]
+	train_list.append(obs)
+	print("predicted=%f, observed=%f" % (yhat, obs))
+</code></pre>
+<p>The picture below shows the forecast results for every month in 2017, on which the red line is the predicted values and blue line is the actual values. It shows that the model is able to capture the trend and makes predictions based on the rolling historical observations.</p>
+<img src="https://github.com/huilingh/CPLN680-AdvancedGIS-web-application/raw/master/Graphs_for_FinalReport/ARIMA_2017.png">
+<p><em>Fig 15: Predicted (red) and actual (blue) monthly average housing prices in 2017</em></p>
+<p>I also plot the residuals of the prediction, which shows that the model tends to over-predict the house prices. However, we should keep in mind that the model is handling a tricky issue here: we use data from 2011 to 2016 as training set to fit the model and predict housing prices in 2017, but the overall trend of the actual house prices shows that housing prices in 2017 follows a very different trend than before. Housing prices before 2017 was rising while it started to decline in 2017. As a result, the model tends to over-predict as it learns from historical observations and predicts that housing prices will keep going up in 2017, while in reality it was not. This is also an issue of time-series prediction as it only relies on historical patterns, so the prediction may be problematic if we have a very unstable and non-seasonal data.</p>
+<img src="https://github.com/huilingh/CPLN680-AdvancedGIS-web-application/raw/master/Graphs_for_FinalReport/ARIMA_residuals.png">
+<p><em>Fig 16: Residuals of predictions in 2017</em></p>
+<img src="https://github.com/huilingh/CPLN680-AdvancedGIS-web-application/raw/master/Graphs_for_FinalReport/Price_by_month_vlines.png">
+<p><em>Fig 17: Monthly average housing prices (sq m)</em></p>
+<h4 id="a-summary-of-the-three-predictions">4. A summary of the three predictions</h4>
+<img src="https://github.com/huilingh/CPLN680-AdvancedGIS-web-application/raw/master/Graphs_for_FinalReport/Table_model_compare.png">
+<p>(Noted that these values are not comparable, as the predictions are fundamentally different – they are trying to answer different questions.)</p>
+<h3 id="discussion">Discussion</h3>
+<p>In this project, I have intentionally drawn a distinction between the so-called multi-dimensional and two-dimensional perspectives, and make predictions using different methods according to this distinction. In reality, these two perspectives are often combined when machine learning algorithms are applied to make predictions. It is often done in such a way called feature engineering (or feature learning), that spatial and time lagged variables are created and included in prediction models as predictors.</p>
+<p>Feature engineering, the process of creating new features (variables) using domain knowledge of the field and adding them as predictors in the model, is fundamental to the application of machine learning prediction. Creating spatial and time lagged features are also a part of the feature engineering process. By doing so, we create new features from our existing dataset, as we understand that housing prices are often highly associated with its surrounding values and historical values (and we have already proven the correlations from the spatial and time-series predictions above).</p>
+<p>If we include the spatial and time dimensions of the housing prices and include them in the Random Forest model, by adding the spatial-lagged variable calculated from the IDW formula, and the time variables which are year and month, we would get a result as the following:</p>
+<img src="https://github.com/huilingh/CPLN680-AdvancedGIS-web-application/raw/master/Graphs_for_FinalReport/Table_new_RF.png">
+<p>The MAE (mean absolute error) is slightly smaller than the first Random Forest model, but the MAPE increases for 0.6, indicating that the model tends to be less accurate and stable. Conducting a 5-fold cross validation gives us a result of prediction scores ranging from 0.80 to 0.85, which is slightly but not significantly better than the first model.</p>
+<pre><code># cross validation
+from sklearn.model_selection import cross_val_score
+cv_score = cross_val_score(rf, train_features_noID, y=train_labels, cv=5)
+cv_score
+
+&gt; Result: array([0.83050935, 0.82838114, 0.83905618, 0.84583922, 0.80237603])
+</code></pre>
+<p>If we look at the feature importance of the new model:</p>
+<img src="https://github.com/huilingh/CPLN680-AdvancedGIS-web-application/raw/master/Graphs_for_FinalReport/RF_feature_importance_new.png">
+<p><em>Fig 18: Feature importance of the second random forest model</em></p>
+<p>We would find that the variable IDW – the spatial lagged variable calculated from the IDW formula, is overshadowing all the other variables. In this case, add this variable is problematic and it is driving down the predictive power of the model.</p>
+<p>In general, combining the external features and the lagged features from the dependent variable should be done carefully and it may be problematic in some cases, as feature engineering not only requires the domain knowledge but also strong technical abilities. This makes feature engineering the hardest and most time-consuming part when conducting machine learning predictions. Real estate companies, data scientists, and other people or entities that are on the professional side, would probably prefer to spend time and money in improving and optimizing the prediction results, as the results will have a large impact on the decision making and the gain or loss of profits.</p>
+<p>For ordinary people, it is hard or even impossible to take all the external factors into account. And their decisions of buying homes or investing in the housing market, are often driven by many personal factors that do not apply to everyone. If people want to know the predicted price of a new housing, my suggestion, after conducting this project, would be just as simple: look around and look in the past. The future value would be in there.</p>
+<h3 id="reference">Reference</h3>
+<p>[1] Reference: Investopedia - <a href="https://www.investopedia.com/terms/b/blackswan.asp">https://www.investopedia.com/terms/b/blackswan.asp</a></p>
+<p>[2] Reference: ScienceDirect - <a href="https://www.sciencedirect.com/topics/medicine-and-dentistry/multivariate-analysis">https://www.sciencedirect.com/topics/medicine-and-dentistry/multivariate-analysis</a></p>
+<p>[3] Reference: from CPLN 671, originally from TOBLER, W. R. “A computer movie simulating urban growth in the Detroit region”. (Economic Geography, 1970).</p>
+<p>[4] Definition of random forest: cited from Lecture 24 of CPLN 671 – Popular classification and regression machine learning algorithms; Picture source: Random Forest Simple Explanation <a href="https://medium.com/@williamkoehrsen/random-forest-simple-explanation-377895a60d2d">https://medium.com/@williamkoehrsen/random-forest-simple-explanation-377895a60d2d</a></p>
+<p>[5] Reference: Lecture 24 of CPLN 671 – Popular classification and regression machine learning algorithms</p>
+<p>[6] The scikit-learn library - <a href="https://scikit-learn.org/">https://scikit-learn.org/</a></p>
+<p>[7] Reference: From Machine Learning To Time Series Forecasting  <a href="https://www.datascience.com/blog/time-series-forecasting-machine-learning-differences">https://www.datascience.com/blog/time-series-forecasting-machine-learning-differences</a></p>
+<p>[8] Reference: <a href="http://planet.botany.uwc.ac.za/nisl/GIS/spatial/chap_1_11.htm">http://planet.botany.uwc.ac.za/nisl/GIS/spatial/chap_1_11.htm</a></p>
+<p>[9] Reference: Handouts on Desktop ArcGIS, Section 121, The Interpolation Tools, from Professor Dana Tomlin</p>
+<p>[10] Reference: <a href="https://ademos.people.uic.edu/Chapter23.html">https://ademos.people.uic.edu/Chapter23.html</a></p>
+<p>[11] Documentation of RandomForestRegressor from skcit-learn: <a href="https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html">https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html</a></p>
+<p>[12] Documentation of Cross-validation from sckit-learn: <a href="https://scikit-learn.org/stable/modules/cross_validation.html">https://scikit-learn.org/stable/modules/cross_validation.html</a></p>
+<p>[13] Reference and codes: <a href="https://machinelearningmastery.com/arima-for-time-series-forecasting-with-python/">https://machinelearningmastery.com/arima-for-time-series-forecasting-with-python/</a></p>
+</div>
+
+<script type="text/javascript">
+var spec = "https://raw.githubusercontent.com/huilingh/CPLN680-AdvancedGIS-web-application/master/average_homeprice_plot.json";
+var em_opt = {"actions": false, "width": 400, "height": 300}
+vegaEmbed('#plot-ave-homeprice', spec, em_opt).then(function(result) {
+  // Access the Vega view instance (https://vega.github.io/vega/docs/api/view/) as result.view
+}).catch(console.error);
+
+var spec2 = "https://raw.githubusercontent.com/huilingh/CPLN680-AdvancedGIS-web-application/master/homeprice_by_district_plot.json"
+var em_opt2 = {"actions": false, "width": 400, "height": 300}
+vegaEmbed('#plot-homeprice-dist', spec2, em_opt2).then(function(result) {}).catch(console.error);
+</script>
+
+
+</body>
+
+</html>
