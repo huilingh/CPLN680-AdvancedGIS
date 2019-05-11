@@ -12,26 +12,47 @@
       body { margin:0; padding:0; }
       #map { position:fixed; top:0; bottom:0; width:100%; z-index:0 }
       #mask { position:fixed; top:0; bottom:0; width:100%; z-index:10; background:rgba(51,53,63,0.4)}
-      h2 { position:absolute; color:#ffffff; z-index:20; top:17%; left:11%; }
-      h4 { position:absolute; color:#ffffff; z-index:20; top:25%; left:11% }
-      #introduction { position:absolute; color:#ffffff; z-index:20; top:35%; left:11%; width:40% }
-      #explore { position:absolute; color:#ffffff; background-color:#C93B25; z-index:20; top:70%; left:11%; }
-      #background-box { position:absolute; background:rgba(0,0,0,0.4); z-index:11; top:10%; left:7%; width:48%; height:75% }
+      #background-box { position:absolute; background:rgba(0,0,0,0.4); z-index:11; top:10%; left:7%; width:50%; height:75%; padding:4%; }
+      h2, h4 { position:relative; color:#ffffff; }
+      /* h4 { position:relative; color:#ffffff; } */
+      #introduction { position:relative; color:#ffffff; margin-top:5%; margin-bottom:5%; }
+      #explore { position:relative; color:#ffffff; background-color:#C93B25; }
   </style>
 </head>
 
 <body>
-  <h2>BEIJING HOUSING PRICE</h2>
-  <h4>ADD A SUBTITLE</h4>
-  <p id="introduction">
-  (This is a place holder) Housing price is an issue that relates to everyone – whether you are a home buyer, seller, investor, appraiser, etc. And over the past few decades, Chinese housing market has been changing dramatically, which makes it even more interesting and meaningful to look at the house price in China. Predicting house price in Beijing, a strong indicator of the total housing market in China, would be the starting point.
-  </p>
-  <button id="explore" type="button" class="btn btn-link">> EXPLORE THE MAP</button>
-  <div id="background-box"></div>
-  <div id="mask"></div>
-  <div id="map"></div>
+  <div id="coverPage">
+      <div id="background-box">
+        <h2>BEIJING HOUSING PRICE</h2>
+        <h4>(IN PROGRESS)</h4>
+        <p id="introduction">
+        (This is a place holder)
+        This is the capstone project I have been doing for the course CPLN680-Advanced Topic in GIS, taught by Dana Tomlin at University of Pennsylvania, City Planning Department.
+        This project is focusing on housing price prediction in Beijing, using the open-source dataset from Kaggle (https://www.kaggle.com/ruiqurm/lianjia).
+        </p>
+        <button id="explore" type="button" class="btn btn-link" href="Map.html">> EXPLORE THE MAP</button>
+      </div>
+
+
+      <div id="mask"></div>
+      <div id="map"></div>
+  </div>
+
+  <div id="mapPage">
+  </div>
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+
+  <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+
+
 
   <script>
+  // cover page setup
   mapboxgl.accessToken = 'pk.eyJ1IjoiaHVpbGluZ2giLCJhIjoiY2pmOW9vcDFvMjlrNzJ4cDQ2NXBwbGxuaiJ9.dCVDcHLb63hLrTilZTl1vQ';
   var map = new mapboxgl.Map({
       container: 'map', // container id
@@ -39,12 +60,60 @@
       center: [116.365913, 39.919775], // starting position [lng, lat]
       zoom: 13 // starting zoom
   });
-  </script>
 
-  <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+  // map.on('load', function () {
+  // map.addLayer({
+  //   "id": "BJ_houseprice",
+  //   "type": "heatmap",
+  //   "source": {
+  //   type: 'vector',
+  //   url: 'mapbox://huilingh.9zq5dchw'
+  //   },
+  //   "source-layer": "BJ_homeprice_geojsontxt",
+  //   "paint": {
+  //     "heatmap-weight": [
+  //       "interpolate",
+  //       ["linear"],
+  //       ["get", "price"],
+  //       1,
+  //       1,
+  //       60765,
+  //       1,
+  //       112847,
+  //       1,
+  //       156250,
+  //       1
+  //     ],
+  //     "heatmap-intensity": 1,
+  //     "heatmap-color":[
+  //       "interpolate",
+  //       ["linear"],
+  //       ["heatmap-density"],
+  //       0,
+  //       "hsla(0, 0%, 100%, 0)",
+  //       0.1,
+  //       "hsl(9, 59%, 86%)",
+  //       0.3,
+  //       "hsl(8, 60%, 78%)",
+  //       0.5,
+  //       "hsl(8, 61%, 69%)",
+  //       0.7,
+  //       "hsl(8, 61%, 60%)",
+  //       1,
+  //       "hsl(8, 69%, 47%)"
+  //     ],
+  //     "heatmap-radius": 35,
+  //     "heatmap-opacity": 0.1
+  //   }
+  //   });
+  // });
+
+
+
+  $('#explore').click(function(){
+    window.location.href = "Map.html"
+  })
+  </script>
 
 
 </body>

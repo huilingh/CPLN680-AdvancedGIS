@@ -6,22 +6,65 @@
   <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
   <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.54.0/mapbox-gl.js'></script>
   <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.54.0/mapbox-gl.css' rel='stylesheet' />
+  <!--load bootstrap -->
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
+  <!--load vega -->
+  <script src="https://cdn.jsdelivr.net/npm//vega@3.3.1"></script>
+  <script src="https://cdn.jsdelivr.net/npm//vega-lite@2.4.3"></script>
+  <script src="https://cdn.jsdelivr.net/npm//vega-embed@3.11"></script>
+  <!--load Material Design Lite -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
+
 
   <style>
       body { margin:0; padding:0; }
-      #navbar-top { position:fixed; z-index:10; width:100%; z-index:30; background-color:#000000 !important;}
+      #navbar-top { position:fixed; z-index:10; width:100%; height:10%; z-index:30; background-color:#000000 !important;}
       #map { position:fixed; top:0; bottom:0; width:100%; z-index:0; }
-      .popup { margin-left:-40%; width:40%; min-height:100vh; background-color:#ffffff; transition: all 0.5s; z-index:10; }
-      .popup.active { margin-left:0; z-index:10; }
-      #navbar-left { position:fixed; left:0; width:5%; top:0; bottom:0; background-color:#515151; z-index:20; }
-      .btn-group-vertical { position:relative; top:20%; z-index:20; width:100%; }
-      .btn-secondary { background-color:#515151; border-color: #515151; box-shadow:none !important; }
+      .popup { margin-left:-50%; width:50%; top:10%; min-height:100vh; background:rgba(255,255,255,0.9); transition: all 0.5s; z-index:10; }
+      .popup.active { margin-left:5%; z-index:10; }
+      #navbar-left { position:fixed; left:0; width:5%; top:10%; bottom:0; background-color:#515151; z-index:20; }
+      .btn-group-vertical { position:relative; z-index:20; width:100%; }
+      .btn-secondary { background-color:#515151; border-color: #515151; padding:30%; box-shadow:none !important; }
       #toggle1.active { background-color:#C93B25; border-color: #C93B25; box-shadow:none !important; }
       #toggle2.active { background-color:#C93B25; border-color: #C93B25; box-shadow:none !important; }
       #toggle3.active { background-color:#C93B25; border-color: #C93B25; box-shadow:none !important; }
       .wrapper { display:flex; align-items:stretch; }
-      .popup-content { position:relative; top:20%; left:20%; }
+      .popup-content { position:relative; top:10%; text-align:center; }
+      .plot { position: relative; }
+      #popup1 { padding:4%; }
+      .slider {
+        -webkit-appearance: none;
+        width: 100%;
+        height: 5px;
+        background: #e3e3e3;
+        outline: none;
+        opacity: 0.8;
+        -webkit-transition: .2s;
+        transition: opacity .2s;
+      }
+
+      .slider:hover {
+        opacity: 0.5;
+      }
+
+      .slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 15px;
+        height: 15px;
+        background: #C93B25;
+        cursor: pointer;
+      }
+
+      .slider::-moz-range-thumb {
+        width: 15px;
+        height: 15px;
+        background: #C93B25;
+        cursor: pointer;
+      }
+
   </style>
 </head>
 
@@ -34,27 +77,58 @@
 
 
   <nav class="navbar navbar-dark bg-dark" id="navbar-top">
-    <span class="navbar-brand mb-0 h1">Beijing Housing Price</span>
+    <span class="navbar-brand mb-0 h1">BEIJING HOUSING PRICE</span>
+    <a class="nav-item nav-link" href="CoverPage.html" style="color:#ffffff">Back to Home Page</a>
   </nav>
 
   <nav id="navbar-left">
     <div class="btn-group-vertical" role="group" aria-label="Basic example">
-      <button type="button" class="btn btn-secondary" id="toggle1">B1</button>
-      <button type="button" class="btn btn-secondary" id="toggle2">B2</button>
-      <button type="button" class="btn btn-secondary" id="toggle3">B3</button>
+      <button type="button" class="btn btn-secondary" id="toggle1"><i class="fas fa-layer-group fa-lg"></i></button>
+      <button type="button" class="btn btn-secondary" id="toggle2"><i class="fas fa-poll fa-lg"></i></button>
+      <button type="button" class="btn btn-secondary" id="toggle3"><i class="fas fa-home fa-lg"></i></button>
     </div>
   </nav>
 
   <div class="wrapper">
     <nav class="popup" id="popup1">
       <div class="popup-content">
-        <h3>popup content 1</h3>
+        <div class="custom-control custom-switch">
+          <input type="checkbox" class="custom-control-input" id="customSwitch1">
+          <label class="custom-control-label" for="customSwitch1">Toggle this switch element</label>
+        </div>
+
+        <div class="custom-control custom-radio custom-control-inline">
+          <input type="radio" id="customRadioInline1" name="customRadioInline1" class="custom-control-input">
+          <label class="custom-control-label" for="customRadioInline1">Price</label>
+        </div>
+        <div class="custom-control custom-radio custom-control-inline">
+          <input type="radio" id="customRadioInline2" name="customRadioInline1" class="custom-control-input">
+          <label class="custom-control-label" for="customRadioInline2">Total Price</label>
+        </div>
+
+        <h5>Select the date of home price:</h5>
+        <br>
+        <div class="slidecontainer">
+          <label for="yearRange">Year: <span id="yearValue"></span></label>
+          <input type="range" class="slider" min="2011" max="2017" value="2017" id="yearRange">
+
+          <label for="monthRange">Month: <span id="monthValue"></span></label>
+          <input type="range" class="slider" min="1" max="12" value="12" id="monthRange">
+        </div>
+
       </div>
     </nav>
 
     <nav class="popup" id="popup2">
       <div class="popup-content">
-        <h3>popup content 2</h3>
+        <!-- <h3>popup content 2</h3> -->
+        <h5>Monthly Average House Price in Beijing</h5>
+        <div class="plot" id="plot-ave-homeprice"></div>
+        <br>
+        <h5>Monthly Average House Price by District</h5>
+        <div class="plot" id="plot-homeprice-dist"></div>
+        <p id="datasource">Data Source: <a href="https://www.kaggle.com/ruiqurm/lianjia">Kaggle Dataset - Housing Price in Beijing</a></p>
+        <br><br><br><br>
       </div>
     </nav>
 
@@ -69,8 +143,21 @@
 
 
 
+  <script type="text/javascript">
+    // altair plots
+    var spec = "https://raw.githubusercontent.com/huilingh/CPLN680-AdvancedGIS-web-application/master/average_homeprice_plot.json";
+    var em_opt = {"actions": false}
+    vegaEmbed('#plot-ave-homeprice', spec, em_opt).then(function(result) {
+      // Access the Vega view instance (https://vega.github.io/vega/docs/api/view/) as result.view
+    }).catch(console.error);
 
-  <script>
+    var spec2 = "https://raw.githubusercontent.com/huilingh/CPLN680-AdvancedGIS-web-application/master/homeprice_by_district_plot.json"
+    var em_opt2 = {"actions": false}
+    vegaEmbed('#plot-homeprice-dist', spec2, em_opt2).then(function(result) {}).catch(console.error);
+  </script>
+
+
+  <script type="text/javascript">
     $('#toggle1').on('click', function(){
       $('#popup1').show().toggleClass("active");
       $('#popup2').hide().removeClass("active");
@@ -97,29 +184,142 @@
       $('#toggle1').removeClass("active");
       $('#toggle2').removeClass("active");
     })
+
+    // get slider values
+    // get year value
+    var yearRange = document.getElementById("yearRange");
+    var yearValue = document.getElementById("yearValue");
+    yearValue.innerHTML = yearRange.value;
+    yearRange.oninput = function() { yearValue.innerHTML = this.value; }
+
+    // get month value
+    var monthRange = document.getElementById("monthRange");
+    var monthValue = document.getElementById("monthValue");
+    monthValue.innerHTML = monthRange.value;
+    monthRange.oninput = function() { monthValue.innerHTML = this.value; }
+
   </script>
 
-  <script>
+  <script type="text/javascript">
   mapboxgl.accessToken = 'pk.eyJ1IjoiaHVpbGluZ2giLCJhIjoiY2pmOW9vcDFvMjlrNzJ4cDQ2NXBwbGxuaiJ9.dCVDcHLb63hLrTilZTl1vQ';
   var map = new mapboxgl.Map({
       container: 'map', // container id
       style: 'mapbox://styles/mapbox/light-v10', // stylesheet location
       center: [116.365913, 39.919775], // starting position [lng, lat]
-      zoom: 11 // starting zoom
+      zoom: 10 // starting zoom
   });
 
-  map.on('load', function () {
-
-  map.addLayer({
-    "id": "BJ_houseprice_17",
+  var point = {
+    "id": "BJ_houseprice_point",
     "type": "circle",
     "source": {
     type: 'vector',
-    url: 'mapbox://huilingh.58faie8m'
+    url: 'mapbox://huilingh.9zq5dchw'
     },
-    "source-layer": "BJ_17_geojson-4hcqon"
+    "source-layer": "BJ_homeprice_geojsontxt",
+    "paint":{
+      "circle-radius": [
+        "interpolate",
+        ["linear"],
+        ["get", "price"],
+        1,
+        1,
+        30701,
+        2.5,
+        41064,
+        4,
+        52065,
+        5.5,
+        68726,
+        7,
+        156250,
+        8.5
+      ],
+      "circle-color": [
+        "interpolate",
+        ["linear"],
+        ["get", "price"],
+        0,
+        "#faeae9",
+        30701,
+        "#edafad",
+        41064,
+        "#e07d75",
+        52065,
+        "#d25343",
+        68726,
+        "#c93b25",
+        156250,
+        "hsl(8, 83%, 31%)"
+      ],
+      "circle-blur": 1
+    }
+  };
+
+
+  var heatmap = {
+    "id": "BJ_houseprice_heatmap",
+    "type": "heatmap",
+    "source": {
+    type: 'vector',
+    url: 'mapbox://huilingh.9zq5dchw'
+    },
+    "source-layer": "BJ_homeprice_geojsontxt",
+    "paint": {
+      "heatmap-weight": [
+        "interpolate",
+        ["linear"],
+        ["get", "price"],
+        1,
+        1,
+        60765,
+        1,
+        112847,
+        1,
+        156250,
+        1
+      ],
+      "heatmap-intensity": 1,
+      "heatmap-color":[
+        "interpolate",
+        ["linear"],
+        ["heatmap-density"],
+        0,
+        "hsla(0, 0%, 100%, 0)",
+        0.1,
+        "hsl(9, 59%, 86%)",
+        0.3,
+        "hsl(8, 60%, 78%)",
+        0.5,
+        "hsl(8, 61%, 69%)",
+        0.7,
+        "hsl(8, 61%, 60%)",
+        1,
+        "hsl(8, 69%, 47%)"
+      ],
+      "heatmap-radius": 10,
+      "heatmap-opacity": 0.55
+    }
+  };
+
+  map.on('load', function () {
+    map.addLayer(point);
+    $( "#customRadioInline1" ).on( "click", function() {
+      map.removeLayer(point['id']);
+      map.addLayer(heatmap)
     });
+
+
+    // if ( $('#customRadioInline1').prop('checked') == true) {
+    //   $('#customRadioInline2').prop('checked', false);
+    // map.setPaintProperty(point['id'], "heatmap-radius", 30);
+    //   console.log(layer)
+    //   map.removeLayer(layer['id']);
+    //   map.addLayer(layer);
+    // }
+
   });
+
   </script>
 
 
