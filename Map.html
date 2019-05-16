@@ -122,6 +122,9 @@
   <div class="wrapper">
     <nav class="popup" id="popup1">
       <div class="popup-content">
+        <h5 style="margin-top:0;">Explore Beijing Housing Price</h5>
+        <p style="color:#888888;">Data source comes from the <a href="https://www.kaggle.com/ruiqurm/lianjia">Kaggle Dataset</a>. It includes housing transactions mostly in 2011-2017, and was originally scraped from Lianjia.com, an online real estate database developed by one of the largest real estate brokerage firm in China.</p>
+        <hr><br>
         <!-- Switch -->
         <div class="custom-control custom-switch">
           <input type="checkbox" class="custom-control-input" id="customSwitches">
@@ -153,9 +156,6 @@
             <input type="range" class="slider" min="2011" max="2017" value="2017" id="yearRange">
           </div>
         </div>
-
-
-
       </div>
     </nav>
 
@@ -167,7 +167,6 @@
         <br>
         <h5>Monthly Average House Price by District</h5>
         <div class="plot" id="plot-homeprice-dist"></div>
-        <p id="datasource">Data Source: <a href="https://www.kaggle.com/ruiqurm/lianjia">Kaggle Dataset - Housing Price in Beijing</a></p>
         <br><br><br><br>
       </div>
     </nav>
@@ -182,16 +181,17 @@
   </div>
 
 
+  <script type="text/javascript" src="vconcat_line_price.json"></script>
 
   <script type="text/javascript">
     // altair plots
-    var spec = "https://raw.githubusercontent.com/huilingh/CPLN680-AdvancedGIS-web-application/master/average_homeprice_plot.json";
+    var spec = "https://raw.githubusercontent.com/huilingh/CPLN680-AdvancedGIS-web-application/master/altair_charts/average_homeprice_plot.json";
     var em_opt = {"actions": false}
     vegaEmbed('#plot-ave-homeprice', spec, em_opt).then(function(result) {
       // Access the Vega view instance (https://vega.github.io/vega/docs/api/view/) as result.view
     }).catch(console.error);
 
-    var spec2 = "https://raw.githubusercontent.com/huilingh/CPLN680-AdvancedGIS-web-application/master/homeprice_by_district_plot.json"
+    var spec2 = "https://raw.githubusercontent.com/huilingh/CPLN680-AdvancedGIS-web-application/master/altair_charts/homeprice_by_district_plot.json"
     var em_opt2 = {"actions": false}
     vegaEmbed('#plot-homeprice-dist', spec2, em_opt2).then(function(result) {}).catch(console.error);
   </script>
@@ -508,8 +508,13 @@
     property = $("#customRadioInline1").val()
     buildLegend(property);
 
-    // add popup
-    // map.on('click', 'point', function(e) {
+    var feature = map.querySourceFeatures("BJ_houseprice_point")
+    console.log(feature)
+
+
+    // // add popup
+    // map.on('click', point['id'], function(e) {
+    //   console.log(e);
     //   new mapboxgl.Popup().setLngLat(e.lnglat).setHTML("something").addTo(map)
     // })
 
