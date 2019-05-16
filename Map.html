@@ -9,6 +9,9 @@
   <!--load bootstrap -->
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+  <!-- <link href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.8.1/css/mdb.min.css" rel="stylesheet"> -->
+
   <!--load vega -->
   <script src="https://cdn.jsdelivr.net/npm//vega@3.3.1"></script>
   <script src="https://cdn.jsdelivr.net/npm//vega-lite@2.4.3"></script>
@@ -22,8 +25,8 @@
       body { margin:0; padding:0; }
       #navbar-top { position:fixed; z-index:10; width:100%; height:10%; z-index:30; background-color:#000000 !important;}
       #map { position:fixed; top:0; bottom:0; width:100%; z-index:0; }
-      .popup { margin-left:-50%; width:50%; top:10%; min-height:100vh; background:rgba(255,255,255,0.9); transition: all 0.5s; z-index:10; }
-      .popup.active { margin-left:5%; z-index:10; }
+      .popup { margin-left:-40%; width:40%; top:10%; min-height:100vh; background:rgba(255,255,255,0.9); transition: all 0.5s; z-index:10; }
+      .popup.active { margin-left:5%; z-index:10; transition: all 0.5s; }
       #navbar-left { position:fixed; left:0; width:5%; top:10%; bottom:0; background-color:#515151; z-index:20; }
       .btn-group-vertical { position:relative; z-index:20; width:100%; }
       .btn-secondary { background-color:#515151; border-color: #515151; padding:30%; box-shadow:none !important; }
@@ -31,9 +34,28 @@
       #toggle2.active { background-color:#C93B25; border-color: #C93B25; box-shadow:none !important; }
       #toggle3.active { background-color:#C93B25; border-color: #C93B25; box-shadow:none !important; }
       .wrapper { display:flex; align-items:stretch; }
-      .popup-content { position:relative; top:10%; text-align:center; }
+      .popup-content { position:relative; top:10%; text-align:left; padding:2%; }
       .plot { position: relative; }
       #popup1 { padding:4%; }
+      #legend { position:absolute; right:2%; bottom:5%; width: 13%; height:35%; background:rgba(255,255,255,0.7); z-index:20; padding:2%; }
+      #radios { margin-bottom: 5%; }
+      #resetButton { display:inline-block; color:#ffffff; background-color:#C93B25; padding-left:2%; padding-right:2%; padding-top:0; padding-bottom:0; }
+      .legend-key {
+        position: relative;
+        height: 10px;
+        margin-left: 5px;
+        margin-right: 5px;
+        display: inline-block;
+      }
+      .legend-color {
+        position: relative;
+        width: 10px;
+        height: 10px;
+        margin-left: 5px;
+        margin-right: 5px;
+        display: inline-block;
+      }
+
       .slider {
         -webkit-appearance: none;
         width: 100%;
@@ -69,10 +91,18 @@
 </head>
 
 <body>
-  <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+  <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+  <!-- Bootstrap switches -->
+  <!-- Bootstrap tooltips -->
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.4/umd/popper.min.js"></script>
+  <!-- Bootstrap core JavaScript -->
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
+  <!-- MDB core JavaScript -->
+  <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.8.1/js/mdb.min.js"></script> -->
 
 
 
@@ -92,29 +122,39 @@
   <div class="wrapper">
     <nav class="popup" id="popup1">
       <div class="popup-content">
+        <!-- Switch -->
         <div class="custom-control custom-switch">
-          <input type="checkbox" class="custom-control-input" id="customSwitch1">
-          <label class="custom-control-label" for="customSwitch1">Toggle this switch element</label>
+          <input type="checkbox" class="custom-control-input" id="customSwitches">
+          <label class="custom-control-label" for="customSwitches">Heatmap</label>
         </div>
-
-        <div class="custom-control custom-radio custom-control-inline">
-          <input type="radio" id="customRadioInline1" name="customRadioInline1" class="custom-control-input">
-          <label class="custom-control-label" for="customRadioInline1">Price</label>
-        </div>
-        <div class="custom-control custom-radio custom-control-inline">
-          <input type="radio" id="customRadioInline2" name="customRadioInline1" class="custom-control-input">
-          <label class="custom-control-label" for="customRadioInline2">Total Price</label>
-        </div>
-
-        <h5>Select the date of home price:</h5>
         <br>
-        <div class="slidecontainer">
-          <label for="yearRange">Year: <span id="yearValue"></span></label>
-          <input type="range" class="slider" min="2011" max="2017" value="2017" id="yearRange">
 
-          <label for="monthRange">Month: <span id="monthValue"></span></label>
-          <input type="range" class="slider" min="1" max="12" value="12" id="monthRange">
+        <div id="radios">
+          <div class="custom-control custom-radio custom-control-inline">
+            <input type="radio" id="customRadioInline1" name="customRadioInline1" class="custom-control-input" value="price" checked>
+            <label class="custom-control-label" for="customRadioInline1">Price</label>
+          </div>
+          <div class="custom-control custom-radio custom-control-inline">
+            <input type="radio" id="customRadioInline2" name="customRadioInline1" class="custom-control-input" value="totalPrice">
+            <label class="custom-control-label" for="customRadioInline2">Total Price</label>
+          </div>
         </div>
+
+        <div id="sliders">
+          <div id="sliderTitle">
+            <p style="font-weight:bold; display:inline-block; margin-right:2%">Select the date</p>
+            <button id="resetButton" type="button" class="btn btn-link">Reset</button>
+          </div>
+          <div class="slidecontainer">
+            <label for="monthRange">Date: <span id="monthValue"></span></label>
+            <input type="range" class="slider" min="1" max="84" value="84" id="monthRange">
+
+            <label for="yearRange">Year: <span id="yearValue"></span></label>
+            <input type="range" class="slider" min="2011" max="2017" value="2017" id="yearRange">
+          </div>
+        </div>
+
+
 
       </div>
     </nav>
@@ -185,19 +225,46 @@
       $('#toggle2').removeClass("active");
     })
 
-    // get slider values
+    $('#map').on('click', function(){
+      $('.popup').removeClass("active");
+      $('#toggle1').removeClass("active");
+      $('#toggle2').removeClass("active");
+      $('#toggle3').removeClass("active");
+    })
+
+
+    $('#resetButton').on('click', function(){
+      resetSliders();
+      map.removeLayer(currentLayer().layer['id']);
+      map.removeSource(currentLayer().layer['id']);
+      map.addLayer(currentLayer().layer);
+      setCurrentProperty();
+    })
+
+    // get and update slider values
+    // get date value
+    var monthRange = document.getElementById("monthRange");
+    var monthValue = document.getElementById("monthValue");
+    monthValue.innerHTML = "2017-12";
+    monthRange.oninput = function() {
+      var month = Number(this.value);
+      if (month<=12) { monthValue.innerHTML = "2011-" + month.toString(); filterDate(2011, month); };
+      if (month>12 && month<=24) { month = month-12; monthValue.innerHTML = "2012-" + month.toString(); filterDate(2012, month);}
+      if (month>24 && month<=36) { month = month-24; monthValue.innerHTML = "2013-" + month.toString(); filterDate(2013, month);}
+      if (month>36 && month<=48) { month = month-36; monthValue.innerHTML = "2014-" + month.toString(); filterDate(2014, month);}
+      if (month>48 && month<=60) { month = month-48; monthValue.innerHTML = "2015-" + month.toString(); filterDate(2015, month);}
+      if (month>60 && month<=72) { month = month-60; monthValue.innerHTML = "2016-" + month.toString(); filterDate(2016, month);}
+      if (month>72 && month<=84) { month = month-72; monthValue.innerHTML = "2017-" + month.toString(); filterDate(2017, month);}
+    };
+
     // get year value
     var yearRange = document.getElementById("yearRange");
     var yearValue = document.getElementById("yearValue");
     yearValue.innerHTML = yearRange.value;
-    yearRange.oninput = function() { yearValue.innerHTML = this.value; }
-
-    // get month value
-    var monthRange = document.getElementById("monthRange");
-    var monthValue = document.getElementById("monthValue");
-    monthValue.innerHTML = monthRange.value;
-    monthRange.oninput = function() { monthValue.innerHTML = this.value; }
-
+    yearRange.oninput = function() {
+      yearValue.innerHTML = this.value;
+      filterYear(Number(this.value));
+    };
   </script>
 
   <script type="text/javascript">
@@ -209,6 +276,73 @@
       zoom: 10 // starting zoom
   });
 
+  var priceColor = [
+    "step",
+    ["get", "price"],
+    "#faeae9",
+    30701,
+    "#edafad",
+    41064,
+    "#e07d75",
+    52065,
+    "#d25343",
+    68726,
+    "#c93b25",
+    156250,
+    "hsl(8, 83%, 31%)"
+  ];
+
+  var totalPriceColor =  [
+    "step",
+    ["get", "totalPrice"],
+    "#faeae9",
+    0.1,
+    "#faeae9",
+    225,
+    "#edafad",
+    310,
+    "#e07d75",
+    405,
+    "#d25343",
+    546,
+    "#c93b25",
+    4900,
+    "#911f0d"
+  ];
+
+  var priceHeatWeight = [
+      "interpolate",
+      ["linear"],
+      ["get", "price"],
+      30701,
+      1,
+      41064,
+      2.5,
+      52065,
+      5,
+      68726,
+      7.5,
+      156250,
+      10
+    ]
+
+  var totalPriceHeatWeight = [
+      "interpolate",
+      ["linear"],
+      ["get", "totalPrice"],
+      225,
+      1,
+      310,
+      2.5,
+      405,
+      5,
+      546,
+      7.5,
+      4900,
+      10
+    ]
+
+
   var point = {
     "id": "BJ_houseprice_point",
     "type": "circle",
@@ -218,44 +352,10 @@
     },
     "source-layer": "BJ_homeprice_geojsontxt",
     "paint":{
-      "circle-radius": [
-        "interpolate",
-        ["linear"],
-        ["get", "price"],
-        1,
-        1,
-        30701,
-        2.5,
-        41064,
-        4,
-        52065,
-        5.5,
-        68726,
-        7,
-        156250,
-        8.5
-      ],
-      "circle-color": [
-        "interpolate",
-        ["linear"],
-        ["get", "price"],
-        0,
-        "#faeae9",
-        30701,
-        "#edafad",
-        41064,
-        "#e07d75",
-        52065,
-        "#d25343",
-        68726,
-        "#c93b25",
-        156250,
-        "hsl(8, 83%, 31%)"
-      ],
-      "circle-blur": 1
+      "circle-radius": 3,
+      "circle-color": priceColor
     }
   };
-
 
   var heatmap = {
     "id": "BJ_houseprice_heatmap",
@@ -266,57 +366,189 @@
     },
     "source-layer": "BJ_homeprice_geojsontxt",
     "paint": {
-      "heatmap-weight": [
-        "interpolate",
-        ["linear"],
-        ["get", "price"],
-        1,
-        1,
-        60765,
-        1,
-        112847,
-        1,
-        156250,
-        1
-      ],
+      "heatmap-weight": priceHeatWeight,
       "heatmap-intensity": 1,
-      "heatmap-color":[
+      "heatmap-color": [
         "interpolate",
         ["linear"],
         ["heatmap-density"],
         0,
         "hsla(0, 0%, 100%, 0)",
         0.1,
-        "hsl(9, 59%, 86%)",
+        "#f0cdc6",
         0.3,
-        "hsl(8, 60%, 78%)",
+        "#e9aea5",
         0.5,
-        "hsl(8, 61%, 69%)",
+        "#e08d80",
         0.7,
-        "hsl(8, 61%, 60%)",
+        "#d76b5b",
         1,
-        "hsl(8, 69%, 47%)"
+        "#cb3b25"
       ],
       "heatmap-radius": 10,
-      "heatmap-opacity": 0.55
+      "heatmap-opacity": 0.6
     }
   };
 
+  var layers = {
+    pointLayer: {
+      layer: point,
+      layerPaint: 'circle-color',
+      layerProperty: {
+        price: priceColor,
+        totalPrice: totalPriceColor
+      }
+    },
+    heatmapLayer: {
+      layer: heatmap,
+      layerPaint: 'heatmap-weight',
+      layerProperty: {
+        price: priceHeatWeight,
+        totalPrice: totalPriceHeatWeight
+      }
+    }
+  }
+  </script>
+
+  <script>
+  // check current layer (point & heatmap)
+  var currentLayer = function() {
+    var layerName;
+    if ($("#customSwitches").prop('checked')) { layerName = layers.heatmapLayer; }
+    else { layerName = layers.pointLayer; }
+    return layerName;
+  }
+
+  // check current property (price & total price)
+  var setCurrentProperty = function() {
+    layerName = currentLayer();
+    if ($("#customRadioInline1").prop('checked')) {
+      map.setPaintProperty(layerName.layer['id'], layerName.layerPaint, layerName.layerProperty.price);
+    }
+    if ($("#customRadioInline2").prop('checked')) {
+      map.setPaintProperty(layerName.layer['id'], layerName.layerPaint, layerName.layerProperty.totalPrice);
+    }
+  }
+
+  // filter by year
+  var filterYear = function(year) {
+    var filter = [
+      "all",
+      [
+        "match",
+        ["get", "year"],
+        [year],
+        true,
+        false
+      ]
+    ];
+    return map.setFilter(currentLayer().layer['id'], filter)
+  }
+
+  // filter by year-month
+  var filterDate = function(year,month) {
+    var filter = [
+      "all",
+      [
+        "match",
+        ["get", "year"],
+        [year],
+        true,
+        false
+      ],
+      [
+        "match",
+        ["get", "month"],
+        [month],
+        true,
+        false
+      ]
+    ];
+    return map.setFilter(currentLayer().layer['id'], filter)
+  };
+
+  var buildLegend = function (property) {
+    var legend = {
+      price: {
+        title: "Price/sq m <br> (RMB)",
+        breaks: ["0 - 30701","30701 - 41064","41064 - 52065","52065 - 68726","68726 - 156250"]
+      },
+      totalPrice: {
+        title: "Total Price <br> (million RMB)",
+        breaks: ["0 - 225","225 - 310","310 - 405","405 - 546","546 - 4900"]
+      },
+      colors: ["#faeae9","#edafad","#e07d75","#d25343","#c93b25"]
+    };
+
+    title = legend[property].title
+    $('#map').append('<div id="legend"><p style="font-weight:bold;">'+title+'</p></div>');
+
+    for (i=0; i<legend.colors.length; i++) {
+      var color = legend.colors[i];
+      var key = legend[property].breaks[i];
+      var appendItem = '<div class="legend-item"><div class="legend-color" style="background-color:'+color+'"></div>'+'<div class="legend-key">'+key+'</div></div>'
+      $('#legend').append(appendItem);
+    }
+  }
+
+  // reset sliders
+  var resetSliders = function() {
+    monthRange.value = "84";
+    yearRange.value = "2017";
+    monthValue.innerHTML = "2017-12";
+    yearValue.innerHTML = yearRange.value;
+  }
+  </script>
+
+
+
+  <script>
   map.on('load', function () {
     map.addLayer(point);
-    $( "#customRadioInline1" ).on( "click", function() {
-      map.removeLayer(point['id']);
-      map.addLayer(heatmap)
+    property = $("#customRadioInline1").val()
+    buildLegend(property);
+
+    // add popup
+    // map.on('click', 'point', function(e) {
+    //   new mapboxgl.Popup().setLngLat(e.lnglat).setHTML("something").addTo(map)
+    // })
+
+    $( "#customSwitches" ).on( "click", function() {
+      resetSliders();
+      if ($(this).prop('checked')) {
+        map.removeLayer(point['id']);
+        map.removeSource(point['id']);
+        map.addLayer(heatmap);
+        setCurrentProperty();
+      } else {
+        map.removeLayer(heatmap['id']);
+        map.removeSource(heatmap['id']);
+        map.addLayer(point);
+        setCurrentProperty();
+      }
     });
 
+    $( "#customRadioInline1" ).on( "click", function() {
+      setCurrentProperty();
+      // layerName = currentLayer();
+      // map.setPaintProperty(layerName.layer['id'], layerName.layerPaint, layerName.layerProperty.price);
 
-    // if ( $('#customRadioInline1').prop('checked') == true) {
-    //   $('#customRadioInline2').prop('checked', false);
-    // map.setPaintProperty(point['id'], "heatmap-radius", 30);
-    //   console.log(layer)
-    //   map.removeLayer(layer['id']);
-    //   map.addLayer(layer);
-    // }
+      // if ($("#customSwitches").prop('checked')) {
+      //   map.setPaintProperty(heatmap['id'], 'heatmap-weight', priceHeatWeight);
+      // } else {
+      //   map.setPaintProperty(point['id'], 'circle-color', priceColor);
+      // }
+      property = $(this).val();
+      $('#legend').remove();
+      buildLegend(property);
+    });
+
+    $( "#customRadioInline2" ).on( "click", function() {
+      setCurrentProperty();
+      property = $(this).val();
+      $('#legend').remove();
+      buildLegend(property);
+    });
 
   });
 
