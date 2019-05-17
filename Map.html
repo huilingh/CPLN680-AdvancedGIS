@@ -169,11 +169,14 @@
 
         <h6 style="font-weight:bold;">Price per square meter (RMB)<br>
         <span style="font-weight:normal; font-size:12px; color:#888888;">Monthly averages</span></h6>
+        <div class="plot" id="price1"></div>
+        <div class="plot" id="price2"></div>
+        <hr>
 
-        <!-- <p>Price per square meter (RMB)</p> -->
-        <div class="plot" id="plot-ave-homeprice"></div>
-        <!-- <p>Monthly Average House Price by District</p> -->
-        <div class="plot" id="plot-homeprice-dist"></div>
+        <h6 style="font-weight:bold;">Total Price (million RMB)<br>
+        <span style="font-weight:normal; font-size:12px; color:#888888;">Monthly averages</span></h6>
+        <div class="plot" id="totalprice1"></div>
+        <div class="plot" id="totalprice2"></div>
         <br><br><br><br>
       </div>
     </nav>
@@ -193,14 +196,17 @@
   <script type="text/javascript">
     // altair plots
     var spec = "https://raw.githubusercontent.com/huilingh/CPLN680-AdvancedGIS-web-application/master/altair_charts/line_price.json";
-    var em_opt = {"actions": false, "width": 350, "height": 200}
-    vegaEmbed('#plot-ave-homeprice', spec, em_opt).then(function(result) {
+    var em_opt = {"actions": false, "width": 340, "height": 200}
+    vegaEmbed('#price1', spec, em_opt).then(function(result) {
       // Access the Vega view instance (https://vega.github.io/vega/docs/api/view/) as result.view
     }).catch(console.error);
 
     var spec2 = "https://raw.githubusercontent.com/huilingh/CPLN680-AdvancedGIS-web-application/master/altair_charts/line_price_dist.json"
-    var em_opt2 = {"actions": false, "width": 350, "height": 200}
-    vegaEmbed('#plot-homeprice-dist', spec2, em_opt2).then(function(result) {}).catch(console.error);
+    vegaEmbed('#price2', spec2, em_opt).then(function(result) {}).catch(console.error);
+
+    var spec3 = ""
+    vegaEmbed('#totalprice1', spec3, em_opt).then(function(result) {}).catch(console.error);
+
   </script>
 
 
