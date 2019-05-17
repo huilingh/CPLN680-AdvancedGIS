@@ -159,12 +159,14 @@
     </nav>
 
     <nav class="popup" id="popup2">
-      <div class="popup-content" style="top:5%;">
+      <div class="popup-content" style="top:3%;">
         <h5 style="margin-top:0;">Beijing Housing Markets & Trends</h5>
         <hr>
         <h6 style="font-weight:bold; color:#C93B25;">Highlights</h6>
         <p style="color:#888888;">- Highest unit price: 70276 RMB in April 2017
-          <br>- Highest total price: 566 million RMB in March 2017</p>
+          <br>- Highest total price: 565 million RMB in March 2017
+          <br>- Xicheng District has both the highest unit price (118188 RMB) and total price (779 million RMB)
+        </p>
         <hr>
 
         <h6 style="font-weight:bold;">Price per square meter (RMB)<br>
@@ -204,8 +206,11 @@
     var spec2 = "https://raw.githubusercontent.com/huilingh/CPLN680-AdvancedGIS-web-application/master/altair_charts/line_price_dist.json"
     vegaEmbed('#price2', spec2, em_opt).then(function(result) {}).catch(console.error);
 
-    var spec3 = ""
+    var spec3 = "https://raw.githubusercontent.com/huilingh/CPLN680-AdvancedGIS-web-application/master/altair_charts/line_totalprice.json"
     vegaEmbed('#totalprice1', spec3, em_opt).then(function(result) {}).catch(console.error);
+
+    var spec4 = "https://raw.githubusercontent.com/huilingh/CPLN680-AdvancedGIS-web-application/master/altair_charts/line_totalprice_dist.json"
+    vegaEmbed('#totalprice2', spec4, em_opt).then(function(result) {}).catch(console.error);
 
   </script>
 
