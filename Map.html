@@ -191,9 +191,11 @@
         <p style="color:#888888;">TBD</p>
         <hr>
 
-        <h6 style="font-weight:bold;">Construction Time<br>
-        <span style="font-weight:normal; font-size:12px; color:#888888;">Number of transactions by districts</span></h6>
-        <div class="plot" id="constructionTime"></div>
+        <h6 style="font-weight:bold;">Number of rooms<br>
+        <span style="font-weight:normal; font-size:12px; color:#888888;">Bedrooms</span></h6>
+        <div class="plot" id="bedroomPlot"></div>
+        <p style="font-weight:normal; font-size:12px; color:#888888;">Bathrooms</p>
+        <div class="plot" id="bathroomPlot"></div>
 
       </div>
     </nav>
@@ -218,6 +220,12 @@
 
     var spec4 = "https://raw.githubusercontent.com/huilingh/CPLN680-AdvancedGIS-web-application/master/altair_charts/line_totalprice_dist.json"
     vegaEmbed('#totalprice2', spec4, em_opt).then(function(result) {}).catch(console.error);
+
+    var spec5 = ""
+    vegaEmbed('#bedroomPlot', spec5, em_opt).then(function(result) {}).catch(console.error);
+
+    var spec6 = ""
+    vegaEmbed('#bathroomPlot', spec6, em_opt).then(function(result) {}).catch(console.error);
 
     // // var spec5 = "https://raw.githubusercontent.com/huilingh/CPLN680-AdvancedGIS-web-application/master/altair_charts/construction_barplot.json"
     // var spec5 = "https://github.com/huilingh/CPLN680-AdvancedGIS-web-application/raw/master/altair_charts/construction_barplot.json"
