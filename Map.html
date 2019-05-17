@@ -192,14 +192,14 @@
 
   <script type="text/javascript">
     // altair plots
-    var spec = "https://raw.githubusercontent.com/huilingh/CPLN680-AdvancedGIS-web-application/master/altair_charts/average_homeprice_plot.json";
+    var spec = "https://raw.githubusercontent.com/huilingh/CPLN680-AdvancedGIS-web-application/master/altair_charts/line_price.json";
     var em_opt = {"actions": false, "width": 350, "height": 200}
     vegaEmbed('#plot-ave-homeprice', spec, em_opt).then(function(result) {
       // Access the Vega view instance (https://vega.github.io/vega/docs/api/view/) as result.view
     }).catch(console.error);
 
-    var spec2 = "https://raw.githubusercontent.com/huilingh/CPLN680-AdvancedGIS-web-application/master/altair_charts/homeprice_by_district_plot.json"
-    var em_opt2 = {"actions": false, "width": 250, "height": 200}
+    var spec2 = "https://raw.githubusercontent.com/huilingh/CPLN680-AdvancedGIS-web-application/master/altair_charts/line_price_dist.json"
+    var em_opt2 = {"actions": false, "width": 350, "height": 200}
     vegaEmbed('#plot-homeprice-dist', spec2, em_opt2).then(function(result) {}).catch(console.error);
   </script>
 
