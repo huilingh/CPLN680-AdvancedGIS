@@ -179,21 +179,28 @@
         <span style="font-weight:normal; font-size:12px; color:#888888;">Monthly averages</span></h6>
         <div class="plot" id="totalprice1"></div>
         <div class="plot" id="totalprice2"></div>
-        <br><br><br><br>
+        <br><br>
       </div>
     </nav>
 
     <nav class="popup" id="popup3">
       <div class="popup-content">
-        <h3>popup content 3</h3>
+        <h5 style="margin-top:0;">Housing Characteristics</h5>
+        <hr>
+        <h6 style="font-weight:bold; color:#C93B25;">Highlights</h6>
+        <p style="color:#888888;">TBD</p>
+        <hr>
+
+        <h6 style="font-weight:bold;">Construction Time<br>
+        <span style="font-weight:normal; font-size:12px; color:#888888;">Number of transactions by districts</span></h6>
+        <div class="plot" id="constructionTime"></div>
+
       </div>
     </nav>
 
     <div id="map"></div>
   </div>
 
-
-  <script type="text/javascript" src="vconcat_line_price.json"></script>
 
   <script type="text/javascript">
     // altair plots
@@ -211,6 +218,11 @@
 
     var spec4 = "https://raw.githubusercontent.com/huilingh/CPLN680-AdvancedGIS-web-application/master/altair_charts/line_totalprice_dist.json"
     vegaEmbed('#totalprice2', spec4, em_opt).then(function(result) {}).catch(console.error);
+
+    // // var spec5 = "https://raw.githubusercontent.com/huilingh/CPLN680-AdvancedGIS-web-application/master/altair_charts/construction_barplot.json"
+    // var spec5 = "https://github.com/huilingh/CPLN680-AdvancedGIS-web-application/raw/master/altair_charts/construction_barplot.json"
+    // // var spec5 = "altair_charts/construction_barplot.json"
+    // vegaEmbed('#constructionTime', spec5, em_opt).then(function(result) {}).catch(console.error);
 
   </script>
 
