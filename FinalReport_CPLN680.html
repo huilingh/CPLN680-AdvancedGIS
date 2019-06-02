@@ -86,11 +86,11 @@ The overall distribution of the housing prices is positively skewed centering at
 <p><strong>2.2 Trend</strong><br>
 Charts below show the averages of the monthly housing prices. Although there are some fluctuations, the overall trend of housing price in Beijing is rising from 2011 to 2017. In 2013 and 2016, Beijing has experienced a dramatic increase in housing prices, while in 2017 the prices started to go down.</p>
 <p>12 of the 16 administrative districts in Beijing have sample points recorded in the dataset. Breaking down by district, we can see that the trends in each district are almost consistent. Housing prices in early dates tends to be unstable, and it starts to become stable since around 2015. This may be caused by the data collection as well, as I have found that the number of samples collected in earlier years are fewer than recent dates.</p>
-<div class="plot">
-  <div id="plot-ave-homeprice"></div>
-  <div id="plot-homeprice-dist"></div>
+<div class="img-container">
+  <img src="https://github.com/huilingh/CPLN680-AdvancedGIS-web-application/raw/master/Graphs_for_FinalReport/Price_by_month.png" style="float:left; width: 45%">
+  <img src="https://github.com/huilingh/CPLN680-AdvancedGIS-web-application/raw/master/Graphs_for_FinalReport/Price_by_month_district.png" style="float:right; width: 55%">
 </div>
-<p><em>Fig 2: Top – overall trends of monthly average housing price; Bottom – monthly average housing price by districts</em></p>
+<p style="clear:both"><em>Fig 2: Left – overall trends of monthly average housing price; Right – monthly average housing price by districts</em></p>
 <p><strong>2.3 Spatial Pattern</strong><br>
 Maps below show the housing prices of all collected sample points in the dataset broken down by year (reds are the low and blues are the high values, and colors are displayed on the same scale on all maps). The sample points are clustering at center city, and the housing prices have been increasing year by year.</p>
 <img src="https://github.com/huilingh/CPLN680-AdvancedGIS-web-application/raw/master/Graphs_for_FinalReport/Map_houseprice_subplots.png">
@@ -147,7 +147,7 @@ Housing price is also temporal and largely related to its historical values, so 
 <h4 id="random-forest">1. Random Forest</h4>
 <p><strong>1.1 Dependent variable: Log-transformation of housing price</strong><br>
 As presented earlier, the distribution of the actual housing price values is positively skewed. In this case, the log transformation on the housing prices will make the variable normally distributed so as to better fit the model and increase prediction accuracy.</p>
-<div id="img-container">
+<div class="img-container">
   <img src="https://github.com/huilingh/CPLN680-AdvancedGIS-web-application/raw/master/Graphs_for_FinalReport/Price_hist.png" style="float:left; width: 50%">
   <img src="https://github.com/huilingh/CPLN680-AdvancedGIS-web-application/raw/master/Graphs_for_FinalReport/Logged_Price_hist.png" style="float:right; width: 50%">
 </div>

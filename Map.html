@@ -36,9 +36,11 @@
       .wrapper { display:flex; align-items:stretch; }
       .popup-content { position:relative; top:10%; text-align:left; }
       .plot { position: relative; padding:0; left:-2%; }
-      #legend { position:absolute; right:2%; bottom:5%; width: 13%; height:35%; background:rgba(255,255,255,0.7); z-index:20; padding:2%; }
+      #legend { position:absolute; right:2%; bottom:5%; width: 15%; height:35%; background:rgba(255,255,255,0.7); z-index:20; padding:2%; }
       #radios { margin-bottom: 5%; }
       #resetButton { display:inline-block; color:#ffffff; background-color:#C93B25; padding-left:2%; padding-right:2%; padding-top:0; padding-bottom:0; }
+      #customSwitches { background-color:#C93B25; border-color: #C93B25; box-shadow:none !important; }
+
       .legend-key {
         position: relative;
         height: 10px;
@@ -164,27 +166,28 @@
         <hr>
         <h6 style="font-weight:bold; color:#C93B25;">Highlights</h6>
         <p style="color:#888888;">- Highest unit price: 70276 RMB in April 2017
-          <br>- Highest total price: 565 million RMB in March 2017
-          <br>- Xicheng District has both the highest unit price (118188 RMB) and total price (779 million RMB)
+          <br>- Highest total price: 5650K RMB in March 2017
+          <br>- Xicheng District has both the highest unit price (118188 RMB) and total price (7790K RMB)
         </p>
         <hr>
 
-        <h6 style="font-weight:bold;">Price per square meter (RMB)<br>
+        <h6 style="font-weight:bold;">Price/m² (RMB)<br>
         <span style="font-weight:normal; font-size:12px; color:#888888;">Monthly averages</span></h6>
         <div class="plot" id="price1"></div>
         <div class="plot" id="price2"></div>
         <hr>
 
-        <h6 style="font-weight:bold;">Total Price (million RMB)<br>
+        <h6 style="font-weight:bold;">Total Price (RMB)<br>
         <span style="font-weight:normal; font-size:12px; color:#888888;">Monthly averages</span></h6>
         <div class="plot" id="totalprice1"></div>
         <div class="plot" id="totalprice2"></div>
+
         <br><br>
       </div>
     </nav>
 
     <nav class="popup" id="popup3">
-      <div class="popup-content">
+      <div class="popup-content" style="top:3%;">
         <h5 style="margin-top:0;">Housing Characteristics</h5>
         <hr>
         <h6 style="font-weight:bold; color:#C93B25;">Highlights</h6>
@@ -192,11 +195,17 @@
         <hr>
 
         <h6 style="font-weight:bold;">Number of rooms<br>
-        <span style="font-weight:normal; font-size:12px; color:#888888;">Bedrooms</span></h6>
+        <span style="font-weight:bold; font-size:14px; color:#888888;">Bedrooms</span></h6>
         <div class="plot" id="bedroomPlot"></div>
-        <p style="font-weight:normal; font-size:12px; color:#888888;">Bathrooms</p>
+        <br>
+        <p style="font-weight:bold; font-size:14px; color:#888888;">Bathrooms</p>
         <div class="plot" id="bathroomPlot"></div>
+        <hr>
 
+        <h6 style="font-weight:bold;">Housing area</h6>
+        <div class="plot" id="areaPlot"></div>
+
+        <br><br>
       </div>
     </nav>
 
@@ -221,11 +230,13 @@
     var spec4 = "https://raw.githubusercontent.com/huilingh/CPLN680-AdvancedGIS-web-application/master/altair_charts/line_totalprice_dist.json"
     vegaEmbed('#totalprice2', spec4, em_opt).then(function(result) {}).catch(console.error);
 
-    var spec5 = ""
-    vegaEmbed('#bedroomPlot', spec5, em_opt).then(function(result) {}).catch(console.error);
 
-    var spec6 = ""
-    vegaEmbed('#bathroomPlot', spec6, em_opt).then(function(result) {}).catch(console.error);
+    var em_opt2 = {"actions": false, "width": 250, "height": 200}
+    var spec5 = "https://raw.githubusercontent.com/huilingh/CPLN680-AdvancedGIS-web-application/master/altair_charts/bedroom_plot.json"
+    vegaEmbed('#bedroomPlot', spec5, em_opt2).then(function(result) {}).catch(console.error);
+
+    var spec6 = "https://raw.githubusercontent.com/huilingh/CPLN680-AdvancedGIS-web-application/master/altair_charts/bathroom_plot.json"
+    vegaEmbed('#bathroomPlot', spec6, em_opt2).then(function(result) {}).catch(console.error);
 
     // // var spec5 = "https://raw.githubusercontent.com/huilingh/CPLN680-AdvancedGIS-web-application/master/altair_charts/construction_barplot.json"
     // var spec5 = "https://github.com/huilingh/CPLN680-AdvancedGIS-web-application/raw/master/altair_charts/construction_barplot.json"
@@ -508,12 +519,12 @@
   var buildLegend = function (property) {
     var legend = {
       price: {
-        title: "Price/sq m <br> (RMB)",
+        title: "Price/m² <br> (RMB)",
         breaks: ["0 - 30701","30701 - 41064","41064 - 52065","52065 - 68726","68726 - 156250"]
       },
       totalPrice: {
-        title: "Total Price <br> (million RMB)",
-        breaks: ["0 - 225","225 - 310","310 - 405","405 - 546","546 - 4900"]
+        title: "Total Price <br> (RMB)",
+        breaks: ["0 - 2250K","2250K - 3100K","3100K - 4050K","4050K - 5460K","5460K - 49000K"]
       },
       colors: ["#faeae9","#edafad","#e07d75","#d25343","#c93b25"]
     };
@@ -593,7 +604,58 @@
       buildLegend(property);
     });
 
+
+
+
+    map.on('click', 'BJ_houseprice_point', function (e) {
+      console.log(e);
+      var coordinates = e.features[0].geometry.coordinates.slice();
+      var pricePop = e.features[0].properties.price;
+      var totalPricePop = e.features[0].properties.totalPrice;
+      var areaPop = e.features[0].properties.square;
+      var constrPop = e.features[0].properties.constructionTime;
+      var bedroomPop = e.features[0].properties.bedRoom;
+      var bathroomPop = e.features[0].properties.bathRoom;
+      var districtPop = e.features[0].properties.district;
+      var yearPop = e.features[0].properties.year;
+      var monthPop = e.features[0].properties.month;
+
+      console.log(bedroomPop, bathroomPop)
+
+      var description = `<strong>￥${pricePop.toString()} (m²) / ￥${(totalPricePop*10).toString()}K</strong><br>${areaPop.toString()} m² / ${bedroomPop.toString()} bds ${bathroomPop.toString()} ba / ${districtPop}<br>Sold: ${yearPop}-${monthPop} / Constructed: ${constrPop.toString()}`
+
+
+      // "Price/sq m: " + pricePop.toString() + "<br>" + "Total price (million): " + totalPricePop.toString() + "<br>" +
+      // "Area (sq m): " + areaPop.toString() + "<br>" + "Construction year: " + constrPop.toString() + "<br>" + "Building structure: " + structurePop + "<br>" +
+      // "Number of bedroom: " + bedroomPop.toString() + "<br>" + "Number of bathroom: " + bar
+
+      // Ensure that if the map is zoomed out such that multiple
+      // copies of the feature are visible, the popup appears
+      // over the copy being pointed to.
+      while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+      coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+      }
+
+      new mapboxgl.Popup()
+      .setLngLat(coordinates)
+      .setHTML(description)
+      .addTo(map);
+    });
+
+    // Change the cursor to a pointer when the mouse is over the places layer.
+    map.on('mouseenter', 'BJ_houseprice_point', function () {
+      map.getCanvas().style.cursor = 'pointer';
+    });
+
+    // Change it back to a pointer when it leaves.
+    map.on('mouseleave', 'BJ_houseprice_point', function () {
+      map.getCanvas().style.cursor = '';
+    });
+
   });
+
+
+
 
   </script>
 
