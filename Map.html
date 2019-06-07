@@ -27,7 +27,7 @@
       #map { position:fixed; top:0; bottom:0; width:100%; z-index:0; }
       .popup { padding:4%; margin-left:-40%; width:40%; top:10%; min-height:100vh; background:rgba(255,255,255,0.9); transition: all 0.5s; z-index:10; }
       .popup.active { margin-left:5%; z-index:10; transition: all 0.5s; }
-      #navbar-left { position:fixed; left:0; width:5%; top:10%; bottom:0; background-color:#515151; z-index:20; }
+      #navbar-left { position:fixed; left:0; width:6%; top:10%; bottom:0; background-color:#515151; z-index:20; }
       .btn-group-vertical { position:relative; z-index:20; width:100%; }
       .btn-secondary { background-color:#515151; border-color: #515151; padding:30%; box-shadow:none !important; }
       #toggle1.active { background-color:#C93B25; border-color: #C93B25; box-shadow:none !important; }
@@ -40,6 +40,11 @@
       #radios { margin-bottom: 5%; }
       #resetButton { display:inline-block; color:#ffffff; background-color:#C93B25; padding-left:2%; padding-right:2%; padding-top:0; padding-bottom:0; }
       #customSwitches { background-color:#C93B25; border-color: #C93B25; box-shadow:none !important; }
+      #toggle1 { padding:13px; }
+      #toggle2 { padding:13px; }
+      #toggle3 { padding:13px; }
+
+      .icon-text { font-size:12px; margin:0 }
 
       .legend-key {
         position: relative;
@@ -114,9 +119,9 @@
 
   <nav id="navbar-left">
     <div class="btn-group-vertical" role="group" aria-label="Basic example">
-      <button type="button" class="btn btn-secondary" id="toggle1"><i class="fas fa-layer-group fa-lg"></i></button>
-      <button type="button" class="btn btn-secondary" id="toggle2"><i class="fas fa-poll fa-lg"></i></button>
-      <button type="button" class="btn btn-secondary" id="toggle3"><i class="fas fa-home fa-lg"></i></button>
+      <button type="button" class="btn btn-secondary" id="toggle1"><i class="fas fa-layer-group fa-lg"></i><br><p class="icon-text">Map</p></button>
+      <button type="button" class="btn btn-secondary" id="toggle2"><i class="fas fa-poll fa-lg"></i><br><p class="icon-text">Trend</p></button>
+      <button type="button" class="btn btn-secondary" id="toggle3"><i class="fas fa-home fa-lg"></i><br><p class="icon-text">Property</p></button>
     </div>
   </nav>
 
